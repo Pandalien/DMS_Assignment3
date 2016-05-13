@@ -1,4 +1,4 @@
-package dmsassignment3.carpool;
+package dmsassignment3.carpool.NfcQr;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -7,6 +7,8 @@ import android.view.KeyEvent;
 
 import com.journeyapps.barcodescanner.CaptureManager;
 import com.journeyapps.barcodescanner.CompoundBarcodeView;
+
+import dmsassignment3.carpool.R;
 
 /**
  * Sample Activity extending from ActionBarActivity to display a Toolbar.

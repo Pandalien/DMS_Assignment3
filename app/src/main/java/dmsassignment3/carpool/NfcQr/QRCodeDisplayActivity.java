@@ -1,4 +1,4 @@
-package dmsassignment3.carpool;
+package dmsassignment3.carpool.NfcQr;
 
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
@@ -8,12 +8,14 @@ import android.widget.ImageView;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 
-public class PointDistActivity extends AppCompatActivity {
+import dmsassignment3.carpool.R;
+
+public class QRCodeDisplayActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_point_dist);
+        setContentView(R.layout.activity_qrcode_display);
 
         // ImageView to display the QR code in.  This should be defined in your Activity's XML layout file
         ImageView imageView = (ImageView) findViewById(R.id.qrCode);

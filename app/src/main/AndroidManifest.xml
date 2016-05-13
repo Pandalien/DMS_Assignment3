@@ -3,6 +3,11 @@
     package="dmsassignment3.carpool">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.NFC" />
+
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -22,15 +27,24 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDImW5M0UXQJG3cYHZ9bacLxXxrsElB2n0" />
 
-        <activity android:name=".DriverActivity"></activity>
+        <activity android:name=".DriverActivity" />
         <activity
-            android:name=".ToolbarCaptureActivity"
+            android:name=".NfcQr.ToolbarCaptureActivity"
             android:clearTaskOnLaunch="true"
             android:screenOrientation="portrait"
             android:stateNotNeeded="true"
             android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:windowSoftInputMode="stateAlwaysHidden"></activity>
-        <activity android:name=".PointDistActivity"></activity>
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity android:name=".NfcQr.QRCodeDisplayActivity" />
+        <activity android:name=".NfcQr.TagonTagoffActivity">
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="application/dmsassignment3.carpool" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

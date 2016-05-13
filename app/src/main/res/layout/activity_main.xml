@@ -44,6 +44,6 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="QR Scan"
-        android:onClick="scanToolbar"/>
+        android:text="Tag On/Off"
+        android:onClick="onLogging"/>
 </RelativeLayout>

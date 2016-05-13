@@ -1,4 +1,4 @@
-package dmsassignment3.carpool;
+package dmsassignment3.carpool.NfcQr;
 
 //
 // * Copyright (C) 2008 ZXing authors
