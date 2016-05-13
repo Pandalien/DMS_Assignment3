@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="dmsassignment3.carpool">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -17,9 +17,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDImW5M0UXQJG3cYHZ9bacLxXxrsElB2n0"/>
+            android:value="AIzaSyDImW5M0UXQJG3cYHZ9bacLxXxrsElB2n0" />
+
+        <activity android:name=".DriverActivity"></activity>
     </application>
 
 </manifest>
