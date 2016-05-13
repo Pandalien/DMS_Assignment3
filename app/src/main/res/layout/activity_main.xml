@@ -41,5 +41,9 @@
         android:layout_centerHorizontal="true"
         android:onClick="passengerButtonClicked"/>
 
-
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="QR Scan"
+        android:onClick="scanToolbar"/>
 </RelativeLayout>
