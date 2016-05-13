@@ -47,7 +47,7 @@ public class DriverActivity extends AppCompatActivity implements
         locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(5000);
-    }
+    } // onCreate
 
     @Override
     protected void onDestroy() {
@@ -74,7 +74,6 @@ public class DriverActivity extends AppCompatActivity implements
     @Override
     protected void onPause() {
         super.onPause();
-
     } // onPause
 
     @Override
