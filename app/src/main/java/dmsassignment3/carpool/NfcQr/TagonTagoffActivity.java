@@ -31,6 +31,17 @@ public class TagonTagoffActivity extends AppCompatActivity implements NfcAdapter
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tagon_tagoff);
+
+        textView = (TextView) findViewById(R.id.tvUser);
+        // Check for available NFC Adapter
+        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (mNfcAdapter == null) {
+            Toast.makeText(this, "NFC is not available, please use QR scanner", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+        // Register callback
+        mNfcAdapter.setNdefPushMessageCallback(this, this);
     }
 
     @Override
@@ -75,7 +86,7 @@ public class TagonTagoffActivity extends AppCompatActivity implements NfcAdapter
         // only one message sent during the beam
         NdefMessage msg = (NdefMessage) rawMsgs[0];
         // record 0 contains the MIME type, record 1 is the AAR, if present
-        textView.setText(new String(msg.getRecords()[0].getPayload()));
+        createCarpoolRecord(new String(msg.getRecords()[0].getPayload()));
     }
     /**
      * Creates a custom MIME type encapsulated in an NDEF record
@@ -108,10 +119,23 @@ public class TagonTagoffActivity extends AppCompatActivity implements NfcAdapter
             } else {
                 Log.d("MainActivity", "Scanned");
                 Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+                createCarpoolRecord(result.getContents());
             }
         } else {
             // This is important, otherwise the result will not be passed to the fragment
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    public void createCarpoolRecord(String driverName){
+        textView.setText(driverName);
+    }
+
+    public void createTagonRecord(View view){
+        Toast.makeText(this, "createTagonRecord", Toast.LENGTH_LONG).show();
+    }
+
+    public void createTagoffRecord(View view){
+        Toast.makeText(this, "createTagoffRecord", Toast.LENGTH_LONG).show();
     }
 }
