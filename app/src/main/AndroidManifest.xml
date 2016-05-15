@@ -35,8 +35,12 @@
             android:stateNotNeeded="true"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
-        <activity android:name=".NfcQr.QRCodeDisplayActivity" />
-        <activity android:name=".NfcQr.TagonTagoffActivity">
+        <activity
+            android:name=".NfcQr.QRCodeDisplayActivity"
+            android:parentActivityName=".NfcQr.TagonTagoffActivity"/>
+        <activity
+            android:name=".NfcQr.TagonTagoffActivity"
+            android:parentActivityName=".MainActivity">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
@@ -44,6 +48,15 @@
 
                 <data android:mimeType="application/dmsassignment3.carpool" />
             </intent-filter>
+
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="dmsassignment3.carpool.MainActivity" />
         </activity>
     </application>
 

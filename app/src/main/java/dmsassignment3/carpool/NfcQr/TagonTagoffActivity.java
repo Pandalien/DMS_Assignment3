@@ -1,14 +1,20 @@
 package dmsassignment3.carpool.NfcQr;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,7 +29,9 @@ import dmsassignment3.carpool.R;
 public class TagonTagoffActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback {
     NfcAdapter mNfcAdapter;
     TextView textView;
+    SharedPreferences prefs;
     String user;
+    String driver;
     String role;
     int miles;
 
@@ -31,8 +39,14 @@ public class TagonTagoffActivity extends AppCompatActivity implements NfcAdapter
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tagon_tagoff);
+        setupActionBar();
 
         textView = (TextView) findViewById(R.id.tvUser);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        user = prefs.getString("example_text", "N/A");
+        textView.setText(user);
+
+
         // Check for available NFC Adapter
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter == null) {
@@ -43,7 +57,24 @@ public class TagonTagoffActivity extends AppCompatActivity implements NfcAdapter
         // Register callback
         mNfcAdapter.setNdefPushMessageCallback(this, this);
     }
-
+    private void setupActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            // Show the Up button in the action bar.
+            actionBar.setTitle("Tag on/ Tag off");
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
         String text = ("Beam me up, Android!\n\n" +

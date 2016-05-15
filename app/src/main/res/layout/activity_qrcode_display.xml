@@ -9,10 +9,23 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".NfcQr.QRCodeDisplayActivity">
 
-    <ImageView
-        android:id="@+id/qrCode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:layout_centerHorizontal="true"/>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Please use the Scan button to read the QR code."
+            android:id="@+id/tvTips" />
+
+        <ImageView
+            android:id="@+id/qrCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:layout_centerHorizontal="true"/>
+    </LinearLayout>
 </RelativeLayout>
