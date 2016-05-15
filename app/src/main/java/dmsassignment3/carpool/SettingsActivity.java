@@ -27,6 +27,8 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import dmsassignment3.carpool.NfcQr.WriteNfcTag;
+
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
  * handset devices, settings are presented as a single list. On tablets,
@@ -278,6 +280,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     }
 
     public void createNfcNameTag(View view){
-        Toast.makeText(this, "createNfcNameTag", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(this, WriteNfcTag.class);
+        startActivity(intent);
     }
 }

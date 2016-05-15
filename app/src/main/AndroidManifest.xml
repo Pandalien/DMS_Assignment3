@@ -37,7 +37,7 @@
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".NfcQr.QRCodeDisplayActivity"
-            android:parentActivityName=".NfcQr.TagonTagoffActivity"/>
+            android:parentActivityName=".NfcQr.TagonTagoffActivity" />
         <activity
             android:name=".NfcQr.TagonTagoffActivity"
             android:parentActivityName=".MainActivity">
@@ -48,7 +48,6 @@
 
                 <data android:mimeType="application/dmsassignment3.carpool" />
             </intent-filter>
-
         </activity>
         <activity
             android:name=".SettingsActivity"
@@ -57,6 +56,10 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="dmsassignment3.carpool.MainActivity" />
+        </activity>
+        <activity
+            android:name=".NfcQr.WriteNfcTag"
+            android:parentActivityName=".SettingsActivity">
         </activity>
     </application>
 
