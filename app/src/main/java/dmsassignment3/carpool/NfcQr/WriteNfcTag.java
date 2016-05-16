@@ -39,8 +39,8 @@ public class WriteNfcTag extends AppCompatActivity implements View.OnClickListen
         setupActionBar();
 
         //
-        ImageView iv = (ImageView)findViewById(R.id.imageViewNfc);
-        iv.setImageResource(R.drawable.nfc);
+        //ImageView iv = (ImageView)findViewById(R.id.imageViewNfc);
+        //iv.setImageResource(R.drawable.nfc);
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         writeButton = (Button)findViewById(R.id.button1);
