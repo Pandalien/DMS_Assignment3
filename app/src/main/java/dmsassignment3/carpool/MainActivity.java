@@ -6,6 +6,8 @@ import android.widget.Toast;
 import android.view.*;
 import android.content.*;
 
+import java.io.FileOutputStream;
+
 import dmsassignment3.carpool.NfcQr.TagonTagoffActivity;
 
 
@@ -20,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
+    } // onDestroy
 
     @Override
     protected void onRestart() {
@@ -30,14 +32,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        // googleApiClient.connect();
-        // do we have to restart any child actitivies manually?
     } // onStart
 
     @Override
     protected void onStop() {
-        // googleApiClient.disconnect();
-        // do we have to stop any child activities manually?
         super.onStop();
     } // onStop
 
@@ -53,15 +51,13 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void driverButtonClicked(View v) {
-//        Toast.makeText(this, "Driver clicked", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, DriverActivity.class);
         startActivity(intent);
     }
 
     public void passengerButtonClicked(View v) {
-        Toast.makeText(this, "Passenger clicked", Toast.LENGTH_SHORT).show();
-      //  Intent intent = new Intent(this, PassengerActivity.class);
-      //  startActivity(intent);
+        Intent intent = new Intent(this, PassengerActivity.class);
+        startActivity(intent);
     }
 
     public void onLogging(View view) {
@@ -73,4 +69,10 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
+
+    public void onLogoutClicked(View view) {
+        // delete cached user info file
+        deleteFile(LocationActivity.USERFILENAME);
+    }
+
 }

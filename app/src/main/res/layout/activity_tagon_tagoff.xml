@@ -49,7 +49,7 @@
             android:layout_height="wrap_content"
             android:text="Create Qr"
             android:onClick="onCreateQr"
-            android:id="@+id/button" />
+            android:id="@+id/beginButton" />
     </LinearLayout>
 
 </RelativeLayout>

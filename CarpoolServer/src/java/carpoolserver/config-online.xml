@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Carpool Server, DMS Assignment 3
+-->
+<!DOCTYPE properties SYSTEM 'http://java.sun.com/dtd/properties.dtd'>
+
+<properties>
+  
+  <comment>Carpool Server Database Configuration</comment>
+
+  <entry key="dbDriver">com.mysql.jdbc.Driver</entry>
+  <entry key="dbURL">jdbc:mysql://raptor2.aut.ac.nz:3306/</entry>  
+  <entry key="dbName">student</entry>
+  <entry key="dbUser">student</entry>
+  <entry key="dbPassword">fpn871</entry>
+  
+  <entry key="userTableName">mjy3130_carpool_user</entry>
+  <entry key="transactionTableName">mjy3130_carpool_transaction</entry>
+    
+</properties>

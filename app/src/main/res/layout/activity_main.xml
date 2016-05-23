@@ -24,9 +24,9 @@
         android:layout_height="wrap_content"
         android:text="I am a Driver"
         android:id="@+id/driverbutton"
+        android:onClick="driverButtonClicked"
         android:layout_marginTop="29dp"
         android:nestedScrollingEnabled="false"
-        android:onClick="driverButtonClicked"
         android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true" />
 
@@ -35,20 +35,21 @@
         android:layout_height="wrap_content"
         android:text="I am a Passenger"
         android:id="@+id/passengerbutton"
+        android:onClick="passengerButtonClicked"
         android:layout_marginTop="26dp"
         android:layout_gravity="center"
         android:layout_below="@+id/driverbutton"
         android:layout_centerHorizontal="true"
-        android:onClick="passengerButtonClicked"/>
+        />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Tag On/Off"
+        android:id="@+id/endDriverButton"
         android:onClick="onLogging"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/button2" />
+        android:layout_centerHorizontal="true"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -56,7 +57,19 @@
         android:text="Settings"
         android:onClick="onSettingsClicked"
         android:icon="@android:drawable/ic_menu_preferences"
-        android:layout_below="@+id/button2"
+        android:layout_marginTop="22dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="54dp" />
+        android:layout_below="@+id/endDriverButton"
+        android:id="@+id/button2"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear User"
+        android:id="@+id/logoutButton"
+        android:onClick="onLogoutClicked"
+        android:layout_marginTop="42dp"
+        android:layout_below="@+id/button2"
+        android:layout_centerHorizontal="true"/>
+
 </RelativeLayout>

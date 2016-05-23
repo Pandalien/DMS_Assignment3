@@ -27,36 +27,35 @@
         <item>-1</item>
     </string-array>
 
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
 
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
+    <!-- HTTP Settings: -->
+    <string name="pref_header_http">HTTP Settings</string>
+
+    <string name="pref_http_title_server">Server Host:Port</string>
+    <string-array name="pref_http_server_titles">
+        <item>Emulator</item>
+        <item>Local</item>
+        <item>Remote</item>
     </string-array>
 
-    <string name="pref_title_system_sync_settings">System sync settings</string>
+    <string name="pref_http_title_emulator_addr">Emulator</string>
+    <string name="pref_http_default_emulator_addr">10.0.2.2:8080</string>
 
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
+    <string name="pref_http_title_local_addr">Local</string>
+    <string name="pref_http_default_local_addr">192.168.178.58:8080</string>
 
-    <string name="pref_title_new_message_notifications">New message notifications</string>
+    <string name="pref_http_title_remote_addr">Remote</string>
+    <string name="pref_http_default_remote_addr">raptor2.aut.ac.nz:8080</string>
 
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
 
-    <string name="pref_title_vibrate">Vibrate</string>
+    <!-- Map Settings -->
+    <string name="pref_header_map">Map Settings</string>
+
+    <string name="pref_map_title_refresh">Refresh interval (milliseconds)</string>
+    <string name="pref_map_default_refresh">4000</string>
+
+
+    <!-- Private user cache filename -->
+    <string name="user_file_name">User</string>
+
 </resources>
