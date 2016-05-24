@@ -49,13 +49,11 @@ public class DriverActivity extends LocationActivity implements OnClickListener 
         cancelDriverButton.setOnClickListener(this);
         endDriverButton.setOnClickListener(this);
 
-/*
+
         passengerListView = (ListView)findViewById(R.id.passengerListView);
         passengerList = new ArrayList<User>();
         listAdapter = new ArrayAdapter<User>(this, android.R.layout.simple_list_item_1, passengerList);
-        passengerList.add(new User());
-*/
-
+        passengerListView.setAdapter(listAdapter);
 
         updateControls();
     } // onCreate
@@ -131,7 +129,6 @@ public class DriverActivity extends LocationActivity implements OnClickListener 
 
     @Override
     public void updateUserList(JSONObject jsonUserList) {
-/*
         passengerList.clear();
         Iterator<String> keys = jsonUserList.keys();
         while (keys.hasNext())
@@ -142,7 +139,6 @@ public class DriverActivity extends LocationActivity implements OnClickListener 
                 System.err.println(e.getMessage());
             }
         listAdapter.notifyDataSetChanged();
-*/
     }
 
 }

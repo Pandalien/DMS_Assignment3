@@ -57,7 +57,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       connection = DriverManager.getConnection(dbURL, dbUser, dbPassword);    
     }
     catch (Exception e) {
-      System.out.println(e.getMessage());
+      System.err.println(e.getMessage());
     }
   } // postConstruct
   
@@ -149,7 +149,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
     }
     catch (Exception e) {
       result = "An error occurred while trying to verify the user.";
-      System.out.println(e.getMessage());            
+      System.err.println(e.getMessage());            
     }
     return result;
   } // authenticateUser
@@ -183,7 +183,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
     }
     catch (Exception e) {
       result = "An error occurred while trying to create a new user.";
-      System.out.println(e.getMessage());      
+      System.err.println(e.getMessage());      
     }
     return result;
   } // createNewUser
@@ -197,18 +197,11 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       preparedStatement = connection.prepareStatement(query);
       preparedStatement.setString(1, username);
       ResultSet resultSet = preparedStatement.executeQuery();
-      if (resultSet.next()) {
-        user = new User();
-        user.setUserID(resultSet.getInt("user_id"));
-        user.setPoints(resultSet.getInt("points"));                
-        user.setStatus(resultSet.getInt("status"));
-        user.setLatLng(resultSet.getDouble("lat"), resultSet.getDouble("lng"));
-        user.setDestLatLng(resultSet.getDouble("dest_lat"), resultSet.getDouble("dest_lng"));
-        user.setProximity(resultSet.getDouble("proximity"));
-      }
+      if (resultSet.next()) 
+        user = getUserFromResultSet(resultSet);
     }
     catch (Exception e) {
-      System.out.println(e.getMessage());            
+      System.err.println(e.getMessage());            
     }
     return user;
   } // getUser
@@ -222,18 +215,11 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       preparedStatement = connection.prepareStatement(query);
       preparedStatement.setInt(1, user_id);
       ResultSet resultSet = preparedStatement.executeQuery();
-      if (resultSet.next()) {
-        user = new User();
-        user.setUserID(resultSet.getInt("user_id"));
-        user.setPoints(resultSet.getInt("points"));                
-        user.setStatus(resultSet.getInt("status"));
-        user.setLatLng(resultSet.getDouble("lat"), resultSet.getDouble("lng"));
-        user.setDestLatLng(resultSet.getDouble("dest_lat"), resultSet.getDouble("dest_lng"));
-        user.setProximity(resultSet.getDouble("proximity"));
-      }
+      if (resultSet.next()) 
+        user = getUserFromResultSet(resultSet);
     }
     catch (Exception e) {
-      System.out.println(e.getMessage());            
+      System.err.println(e.getMessage());            
     }
     return user;
   } // getUser
@@ -249,7 +235,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       preparedStatement.executeUpdate();
     }
     catch (Exception e) {
-      System.out.println(e.getMessage());                  
+      System.err.println(e.getMessage());                  
     }
   } // updateStatus
   
@@ -263,7 +249,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       preparedStatement.executeUpdate();
     }
     catch (Exception e) {
-      System.out.println(e.getMessage());                  
+      System.err.println(e.getMessage());                  
     }
   } // updatePoints
   
@@ -278,7 +264,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       preparedStatement.executeUpdate();
     }
     catch (Exception e) {
-      System.out.println(e.getMessage());                  
+      System.err.println(e.getMessage());                  
     }
   } // updateLocation
   
@@ -293,7 +279,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       preparedStatement.executeUpdate();
     }
     catch (Exception e) {
-      System.out.println(e.getMessage());                  
+      System.err.println(e.getMessage());                  
     }
   } // updateDestination
   
@@ -307,7 +293,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       preparedStatement.executeUpdate();
     }
     catch (Exception e) {
-      System.out.println(e.getMessage());                  
+      System.err.println(e.getMessage());                  
     }
   } // updateProximity
   
@@ -318,28 +304,20 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
     
     // also check transaction table to see if user is currently in a transaction
     // I think it can be done with one sql command
-/*    
+    
     ArrayList<User> userlist = new ArrayList();
     int status = forUser.isDriver() ? User.PASSENGER : User.DRIVER;
     try {
       PreparedStatement preparedStatement;
       String query = "select * from " + dbName + "." + userTableName;// + " where status = ? ";
       preparedStatement = connection.prepareStatement(query);
-      preparedStatement.setInt(1, status);
+//      preparedStatement.setInt(1, status);
       ResultSet resultSet = preparedStatement.executeQuery();
-      if (resultSet.next()) {
-        User user = new User();
-        user.setUserID(resultSet.getInt("user_id"));
-        user.setPoints(resultSet.getInt("points"));                
-        user.setStatus(resultSet.getInt("status"));
-        user.setLatLng(resultSet.getDouble("lat"), resultSet.getDouble("lng"));
-        user.setDestLatLng(resultSet.getDouble("dest_lat"), resultSet.getDouble("dest_lng"));
-        user.setProximity(resultSet.getDouble("proximity"));
-        userlist.add(user);
-      }
+      while (resultSet.next()) 
+        userlist.add(getUserFromResultSet(resultSet));
     }
     catch (Exception e) {
-      System.out.println(e.getMessage());            
+      System.err.println(e.getMessage());
     }
     
     JSONObject jsonUserList = new JSONObject();
@@ -353,9 +331,25 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
     }
     
     return jsonUserList;
-*/
-    return null;
   } // getUserList
+  
+  
+  private User getUserFromResultSet(ResultSet resultSet) {
+    User user = new User();    
+    try {
+      user.setUserID(resultSet.getInt("user_id"));
+      user.setUsername(resultSet.getString("username"));
+      user.setPoints(resultSet.getInt("points"));                
+      user.setStatus(resultSet.getInt("status"));
+      user.setLatLng(resultSet.getDouble("lat"), resultSet.getDouble("lng"));
+      user.setDestLatLng(resultSet.getDouble("dest_lat"), resultSet.getDouble("dest_lng"));
+      user.setProximity(resultSet.getDouble("proximity"));
+    }
+    catch (Exception e) {
+      System.err.println(e.getMessage());      
+    }
+    return user;
+  } // getUserFromResultSet
   
 
 } // CarpoolerEJB

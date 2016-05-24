@@ -524,7 +524,7 @@ public class LocationActivity extends AppCompatActivity implements
     // and expects a JSON Object back.
     // To use, make a subclass of HttpJsonCommunicator and override ok() and error() handlers.
     // Call using executeComm function above.
-    // Automatically handles cookies, saving them to the LocationActivity's cookieJar member.
+    // Automatically handles cookies, saving them to the LocationActivity's cookieJar.
     // ref:
     // https://developer.android.com/reference/android/os/AsyncTask.html
     // http://stackoverflow.com/questions/16150089/how-to-handle-cookies-in-httpurlconnection-using-cookiemanager

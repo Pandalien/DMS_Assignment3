@@ -82,11 +82,6 @@ public class Carpooler extends HttpServlet {
       result = "Server Error: Couldn't get EJB!";
     }
     // If valid request, call the named function
-    // The carpoolerEJB stateful bean maintains the user session for following
-    // http requests, so even if the user has not logged in they get a session bean,
-    // but just can't do anything much. 
-    // Does the session timeout setting in manifest.mf apply to EJB beans?
-    // If so, it will expire if the user is inactive for 5 minutes.
     else if (jsonRequest != null) {
     
       // all successful requests should receive back an updated list of 
@@ -164,26 +159,34 @@ public class Carpooler extends HttpServlet {
             carpoolerEJB.updateStatus(user.getUserID(), usertype);            
             carpoolerEJB.updateLocation(user.getUserID(), lat, lng);
             carpoolerEJB.updateDestination(user.getUserID(), dest_lat, dest_lng);
+            
+            try {
+              jsonResponse.put("userlist", carpoolerEJB.getUserList(user));
+            }
+            catch (Exception e) {
+              System.err.println(e.getMessage());            
+            }
+            
           }
         }
       }
-      else if (function.equals("logout")) {
-        session.removeAttribute("user");        
-        carpoolerEJB.updateStatus(user.getUserID(), User.OFFLINE);
-      }
-      else if (user != null) { // must be user session bean loaded for these next functions:
-        if (function.equals("locationupdate")) {
+      else if (user != null) { // a valid user session bean must have been acquired for these next functions:
+        if (function.equals("logout")) {
+          session.removeAttribute("user");        
+          carpoolerEJB.updateStatus(user.getUserID(), User.OFFLINE);
+        }        
+        else if (function.equals("locationupdate")) {
           double lat = jsonRequest.optDouble("lat", 0);
           double lng = jsonRequest.optDouble("lng", 0);
           carpoolerEJB.updateLocation(user.getUserID(), lat, lng);
-/*          
+          
           try {
             jsonResponse.put("userlist", carpoolerEJB.getUserList(user));
           }
           catch (Exception e) {
             System.err.println(e.getMessage());            
           }
-*/          
+          
         }
         // next are Transaction updates:
         else if (function.equals("pending")) {
