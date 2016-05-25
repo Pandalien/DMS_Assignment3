@@ -46,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Tag On/Off"
-        android:id="@+id/endDriverButton"
+        android:id="@+id/endButton"
         android:onClick="onLogging"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"/>
@@ -59,7 +59,7 @@
         android:icon="@android:drawable/ic_menu_preferences"
         android:layout_marginTop="22dp"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/endDriverButton"
+        android:layout_below="@+id/endButton"
         android:id="@+id/button2"/>
 
     <Button

@@ -70,7 +70,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener,
             if (createAccountRadioButton.isChecked() && !password.equals(vpassword))
                 Toast.makeText(this, "Password verification mismatch.", Toast.LENGTH_LONG).show();
             else {
-                Intent intent = new Intent(this, usertype == User.DRIVER ? DriverActivity.class : PassengerActivity.class);
+                Intent intent = new Intent(this, LocationActivity.class);
                 intent.putExtra("function", createAccountRadioButton.isChecked() ? "createaccount" : "login");
                 intent.putExtra("username", username);
                 intent.putExtra("password", password);

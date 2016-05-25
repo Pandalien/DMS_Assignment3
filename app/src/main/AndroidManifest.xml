@@ -29,7 +29,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDImW5M0UXQJG3cYHZ9bacLxXxrsElB2n0"/>
 
-        <activity android:name=".DriverActivity"/>
         <activity
             android:name=".NfcQr.ToolbarCaptureActivity"
             android:clearTaskOnLaunch="true"
@@ -66,8 +65,6 @@
         <activity android:name=".LocationActivity">
         </activity>
         <activity android:name=".LoginActivity">
-        </activity>
-        <activity android:name=".PassengerActivity">
         </activity>
     </application>
 

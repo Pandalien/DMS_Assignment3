@@ -309,9 +309,13 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
     int status = forUser.isDriver() ? User.PASSENGER : User.DRIVER;
     try {
       PreparedStatement preparedStatement;
-      String query = "select * from " + dbName + "." + userTableName;// + " where status = ? ";
+      String query = "select * from " + dbName + "." + userTableName
+                   + " where user_id!=?"
+//                   + " and status=?"
+                   +";";
       preparedStatement = connection.prepareStatement(query);
-//      preparedStatement.setInt(1, status);
+      preparedStatement.setInt(1, forUser.getUserID());
+//      preparedStatement.setInt(2, status);
       ResultSet resultSet = preparedStatement.executeQuery();
       while (resultSet.next()) 
         userlist.add(getUserFromResultSet(resultSet));
@@ -321,9 +325,9 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
     }
     
     JSONObject jsonUserList = new JSONObject();
-    for (User u: userlist) {
+    for (User user: userlist) {
       try {
-        jsonUserList.put(u.getUsername(), u.toJSONObject());
+        jsonUserList.put(user.getUsername(), user.toJSONObject());
       }
       catch (Exception e) {
         System.err.println(e.getMessage());

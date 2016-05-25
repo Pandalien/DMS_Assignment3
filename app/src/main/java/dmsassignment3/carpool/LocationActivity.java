@@ -5,8 +5,9 @@ import android.content.*;
 import android.os.*;
 import android.support.v7.app.AppCompatActivity;
 import android.location.Location;
-import android.webkit.CookieManager;
-import android.widget.Toast;
+import android.view.*;
+import android.view.View.*;
+import android.widget.*;
 import android.preference.*;
 import android.net.*;
 import android.text.*;
@@ -22,45 +23,68 @@ import org.json.*;
 import java.net.*;
 import java.io.*;
 import java.util.*;
-import java.util.Map.*;
-
-
-
 
 /*
-  LocationActivity is the base class for DriverActivity and PassengerActivity.
-  Handles user location updates and user session with the Carpool server.
-  There should be only one instance of a Driver or Passenger Activity at any time.
+  LocationActivity handles user location updates and user session with the Carpool server.
+  There should be only one instance of a LocationActivity at any time.
+  The usertype intent bundle variable is used to select whether this session is for a
+  driver or a passenger.
  */
 
 public class LocationActivity extends AppCompatActivity implements
-        ConnectionCallbacks, OnMapReadyCallback, GoogleMap.OnMapClickListener, LocationListener {
+        ConnectionCallbacks, OnMapReadyCallback, GoogleMap.OnMapClickListener, LocationListener,
+        OnClickListener, AdapterView.OnItemClickListener {
 
     public static String USERFILENAME = "User";
     static int REQUEST_CODE_LOGIN_ACTIVITY = 1;
 
     URL postURL;
 
-    int userstatus;
+    int usertype; // the target user type for this activity (User.DRIVER or User.PASSENGER)
 
-    User user;
+    User user; // the current user of this app
 
+    // map
     GoogleApiClient googleApiClient;
     GoogleMap googleMap;
     LocationRequest locationRequest;
     Marker youMarker;
     Marker destMarker;
 
+    // UI controls
+    ViewGroup startControls;
+    ViewGroup liveControls;
 
+    // start controls
+    EditText proximityEditText;
+    Button beginButton;
+    Button cancelButton;
+
+    // live controls
+    ListView userListView; // list of other users logged in to the system
+    Button endButton;
+    Button submitButton; // used by subclass to submit a special function for the selected user
+
+    // the other users on the system which meet the criteria to show in the list,
+    // see CarpoolerEJB.getUserList() on server side.
+    List<User> userList;
+    ArrayAdapter<User> listAdapter;
+
+    // maintain the users and markers in lookup tables
+    HashMap<String, Marker> userMarkerHashMap;
+    HashMap<String, User> userHashMap;
+
+    // pointer to this activity for inner classes
     Activity activity;
 
+    // keep cookies here between http requests
     java.net.CookieManager cookieJar;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_location);
+        setContentView(R.layout.activity_location);
 
         // Using Google's Location API docs:
         // https://developers.google.com/android/reference/com/google/android/gms/location/LocationListener
@@ -77,6 +101,10 @@ public class LocationActivity extends AppCompatActivity implements
 //                    .addOnConnectionFailedListener(this)
                     .build();
 
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+
         locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 //        locationRequest.setInterval(4000);
@@ -85,7 +113,9 @@ public class LocationActivity extends AppCompatActivity implements
         activity = this;
         postURL = null;
 
-        userstatus = User.OFFLINE;
+        Bundle extras = getIntent().getExtras();
+        usertype = extras.getInt("usertype");
+
 
         user = new User();
 
@@ -94,38 +124,70 @@ public class LocationActivity extends AppCompatActivity implements
         destMarker = null;
 
         cookieJar = new java.net.CookieManager();
+
+
+        userMarkerHashMap = new HashMap();
+        userHashMap = new HashMap();
+
+
+        // UI controls
+        startControls = (ViewGroup) findViewById(R.id.startControls);
+        liveControls = (ViewGroup) findViewById(R.id.liveControls);
+        beginButton = (Button) findViewById(R.id.beginButton);
+        cancelButton = (Button) findViewById(R.id.cancelButton);
+        endButton = (Button) findViewById(R.id.endButton);
+
+        proximityEditText = (EditText) findViewById(R.id.proximityEditText);
+
+        beginButton.setOnClickListener(this);
+        cancelButton.setOnClickListener(this);
+        endButton.setOnClickListener(this);
+
+        userListView = (ListView) findViewById(R.id.userListView);
+        userList = new ArrayList<User>();
+        listAdapter = new ArrayAdapter<User>(this, android.R.layout.simple_list_item_1, userList);
+        userListView.setAdapter(listAdapter);
+        userListView.setOnItemClickListener(this);
+
+
+        updateControls();
     } // onCreate
 
     @Override
     protected void onDestroy() {
+        System.out.println("onDestroy");
         super.onDestroy();
     } // onDestroy
 
     @Override
     protected void onRestart() {
+        System.out.println("onRestart");
         super.onRestart();
     } // onRestart
 
     @Override
     protected void onStart() {
+        System.out.println("onStart");
         super.onStart();
         googleApiClient.connect();
     } // onStart
 
     @Override
     protected void onStop() {
+        System.out.println("onStop");
         googleApiClient.disconnect();
         super.onStop();
     } // onStop
 
     @Override
     protected void onPause() {
+        System.out.println("onPause");
         super.onPause();
-
     } // onPause
 
     @Override
     protected void onResume() {
+        System.out.println("onResume");
         super.onResume();
 //        if (googleApiClient.isConnected())
     }
@@ -188,6 +250,7 @@ public class LocationActivity extends AppCompatActivity implements
     } // onMapReady
 
 
+    @Override
     public void onMapClick(LatLng point) {
         if (!isOnline()) {
             // in set destination mode:
@@ -203,33 +266,112 @@ public class LocationActivity extends AppCompatActivity implements
     } // onMapClick
 
 
+    @Override
+    public void onClick(View view) {
+        if (view == beginButton) {
+            login("login");
+        } else if (view == cancelButton) {
+            finish();
+        } else if (view == endButton) {
+            logout();
+        }
+    } // onClick
+
+
+    @Override
+    public void onItemClick(AdapterView parent, View view, int position, long id) {
+        User user = userList.get(position);
+        if (user == null)
+            return;
+
+        Marker marker = userMarkerHashMap.get(user.getUsername());
+        if (marker == null)
+            return;
+
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(user.getLat(), user.getLng()), 15));
+    } // onItemClick
+
+
     public void updateControls() {
+        beginButton.setEnabled(destMarker != null);
+        startControls.setVisibility(isOnline() ? View.GONE : View.VISIBLE);
+        liveControls.setVisibility(isOnline() ? View.VISIBLE : View.GONE);
     } // updateControls
 
-
-    public int getUserType() {
-        return User.OFFLINE;
-    }
 
     public boolean isOnline() {
         return user.isDriver() || user.isPassenger();
     }
 
-    // overridden by descendent; called when user has successfully logged in to the server
+    // called when user has successfully logged in to the server
     public void loggedIn() {
-//        setTitle("Carpooler - " + user.getUsername());
+        setTitle("Carpooler - " + user.getUsername());
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String refreshStr = prefs.getString("location_refresh_interval", "4000");
 
         stopLocationUpdates();
         locationRequest.setInterval(Integer.parseInt(refreshStr));
         startLocationUpdates();
+
+        user.setStatus(usertype);
+        updateControls();
     } // loggedIn
+
+    public void loggedOut() {
+        user.setStatus(User.OFFLINE);
+        finish();
+    } // loggedOut
+
 
     public void locationUpdated() {
     }
 
-    public void updateUserList(JSONObject jsonUserList) {}
+    public void updateUserList(JSONObject jsonUserList) {
+
+        // create new user hash map from the list
+        userHashMap.clear();
+        Iterator<String> keys = jsonUserList.keys();
+        while (keys.hasNext())
+            try {
+                String key = keys.next();
+                User user = new User(jsonUserList.getJSONObject(key));
+                userHashMap.put(key, user);
+            }
+            catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+
+        // remove old users from userMarkerHashMap and also the google map
+        for (String key: userMarkerHashMap.keySet())
+            if (userHashMap.get(key) == null) {
+                Marker marker = userMarkerHashMap.get(key);
+                marker.remove();
+                userMarkerHashMap.remove(key);
+            }
+
+        // update or add new markers as required to match userHashMap
+        for (User user: userHashMap.values()) {
+            String key = user.getUsername();
+            LatLng point = new LatLng(user.getLat(), user.getLng());
+            Marker marker = userMarkerHashMap.get(key);
+            if (marker != null)
+                marker.setPosition(point);
+            else {
+                marker = googleMap.addMarker(new MarkerOptions()
+                        .position(point)
+                        .title(key)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                userMarkerHashMap.put(key, marker);
+            }
+        }
+
+        // finally, update the UI
+        userList.clear();
+        userList.addAll(userHashMap.values());
+        listAdapter.notifyDataSetChanged();
+    } // updateUserList
+
 
 
     // HTTP communication functions:
@@ -255,7 +397,6 @@ public class LocationActivity extends AppCompatActivity implements
     Transaction Table needs to keep an entry for whether a driver is to collect a passenger (so that
     the passenger is removed from the list for other drivers), tagged on action, and tagged off action
     (which could remove the entry from the Transaction Table after updating User points and so on).
-
      */
 
 
@@ -326,7 +467,7 @@ public class LocationActivity extends AppCompatActivity implements
         Intent intent = new Intent(this, LoginActivity.class);
         intent.putExtra("function", function);
         intent.putExtra("username", username);
-        intent.putExtra("usertype", getUserType());
+        intent.putExtra("usertype", usertype);
         startActivityForResult(intent, REQUEST_CODE_LOGIN_ACTIVITY);
     } // askUserPass
 
@@ -357,7 +498,7 @@ public class LocationActivity extends AppCompatActivity implements
             cmd.put("function", function);
             cmd.put("username", username);
             cmd.put("password", password);
-            cmd.put("usertype", getUserType());
+            cmd.put("usertype", usertype);
             if (youMarker != null) {
                 cmd.put("lat", youMarker.getPosition().latitude);
                 cmd.put("lng", youMarker.getPosition().longitude);
@@ -366,6 +507,22 @@ public class LocationActivity extends AppCompatActivity implements
                 cmd.put("dest_lat", destMarker.getPosition().latitude);
                 cmd.put("dest_lng", destMarker.getPosition().longitude);
             }
+
+            double proximity;
+            try {
+                proximity = Double.parseDouble(proximityEditText.getText().toString());
+            }
+            catch (Exception e) {
+                System.err.println(e.getMessage());
+                proximity = 1;
+            }
+            cmd.put("proximity", proximity);
+
+
+            // update/create a new user object using the appropriate fields from this login command
+            // if the log-in is successful the status is updated by loggedIn()
+            user = new User(cmd);
+
         } catch (Exception e) {
             System.out.print(e.getMessage());
         }
@@ -440,7 +597,7 @@ public class LocationActivity extends AppCompatActivity implements
     private class LogoutComm extends HttpJsonCommunicator {
 
         protected void ok(JSONObject response) {
-            finish();
+            loggedOut();
         }
 
         protected void error(String result, JSONObject response) {
@@ -481,7 +638,7 @@ public class LocationActivity extends AppCompatActivity implements
         }
 
         protected void error(String result, JSONObject response) {
-            // should perhaps silently log the error here
+            // should probably log the error here
         }
 
     } // LocationUpdateComm

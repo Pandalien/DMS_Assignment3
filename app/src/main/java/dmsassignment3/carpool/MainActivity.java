@@ -51,12 +51,14 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void driverButtonClicked(View v) {
-        Intent intent = new Intent(this, DriverActivity.class);
+        Intent intent = new Intent(this, LocationActivity.class);
+        intent.putExtra("usertype", User.DRIVER);
         startActivity(intent);
     }
 
     public void passengerButtonClicked(View v) {
-        Intent intent = new Intent(this, PassengerActivity.class);
+        Intent intent = new Intent(this, LocationActivity.class);
+        intent.putExtra("usertype", User.PASSENGER);
         startActivity(intent);
     }
 

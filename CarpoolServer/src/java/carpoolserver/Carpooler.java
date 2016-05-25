@@ -96,44 +96,6 @@ public class Carpooler extends HttpServlet {
       }
       
       String function = jsonRequest.optString("function", "");
-/*      
-      if (function.equals("createaccount")) {
-        String username = jsonRequest.optString("username", "");
-        String password = jsonRequest.optString("password", "");
-        int usertype = jsonRequest.optInt("usertype", User.OFFLINE);
-        // verify inputs:
-        if (username == null || password == null || username.length() == 0 || password.length() == 0) 
-          result = "Username or password cannot be empty.";
-        else if (!username.matches("^[a-zA-Z0-9_]+$")) 
-          result = "Illegal characters in username (a-z, 0_9 and _ only).";
-        else {
-          // verification OK, so try to create an account:
-          result = carpoolerEJB.createNewUser(username, password);
-          if (result == null) { // null result = no error
-            user = carpoolerEJB.getUser(username);
-            session.setAttribute("user", user);
-            carpoolerEJB.updateStatus(user.getUserID(), usertype);            
-          }
-        }
-      }
-      else if (function.equals("login")) {
-        String username = jsonRequest.optString("username", "");
-        String password = jsonRequest.optString("password", "");
-        int usertype = jsonRequest.optInt("usertype", User.OFFLINE);        
-        // verify inputs:
-        if (username == null || password == null || username.length() == 0 || password.length() == 0) 
-          result = "Username or password cannot be empty.";
-        else {
-          // verification OK, so try to log in
-          result = carpoolerEJB.authenticateUser(username, password);
-          if (result == null) { // null result = no error
-            user = carpoolerEJB.getUser(username);                    
-            session.setAttribute("user", user);
-            carpoolerEJB.updateStatus(user.getUserID(), usertype);                        
-          }
-        }        
-      }
-*/
       if (function.equals("createaccount") || function.equals("login")) {
         String username = jsonRequest.optString("username", "");
         String password = jsonRequest.optString("password", "");
@@ -142,6 +104,7 @@ public class Carpooler extends HttpServlet {
         double lng = jsonRequest.optDouble("lng", 0);
         double dest_lat = jsonRequest.optDouble("dest_lat", 0);
         double dest_lng = jsonRequest.optDouble("dest_lng", 0);
+        double proximity = jsonRequest.optDouble("proximity", 1);
         // verify inputs:
         if (username == null || password == null || username.length() == 0 || password.length() == 0) 
           result = "Username or password cannot be empty.";
@@ -159,6 +122,7 @@ public class Carpooler extends HttpServlet {
             carpoolerEJB.updateStatus(user.getUserID(), usertype);            
             carpoolerEJB.updateLocation(user.getUserID(), lat, lng);
             carpoolerEJB.updateDestination(user.getUserID(), dest_lat, dest_lng);
+            carpoolerEJB.updateProximity(user.getUserID(), proximity);
             
             try {
               jsonResponse.put("userlist", carpoolerEJB.getUserList(user));
