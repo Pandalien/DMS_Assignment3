@@ -77,4 +77,8 @@ public class MainActivity extends AppCompatActivity {
         deleteFile(LocationActivity.USERFILENAME);
     }
 
+    public void onHistoryClicked(View view) {
+        Intent intent = new Intent(this, HistoryActivity.class);
+        startActivity(intent);
+    }
 }

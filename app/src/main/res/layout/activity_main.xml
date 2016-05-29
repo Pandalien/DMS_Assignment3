@@ -14,10 +14,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="What are you today?"
-        android:id="@+id/textView"
-        android:layout_gravity="center"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:id="@+id/textView" />
 
     <Button
         android:layout_width="wrap_content"
@@ -25,8 +22,6 @@
         android:text="I am a Driver"
         android:id="@+id/driverbutton"
         android:onClick="driverButtonClicked"
-        android:layout_marginTop="29dp"
-        android:nestedScrollingEnabled="false"
         android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true" />
 
@@ -36,11 +31,9 @@
         android:text="I am a Passenger"
         android:id="@+id/passengerbutton"
         android:onClick="passengerButtonClicked"
-        android:layout_marginTop="26dp"
         android:layout_gravity="center"
         android:layout_below="@+id/driverbutton"
-        android:layout_centerHorizontal="true"
-        />
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -48,8 +41,9 @@
         android:text="Tag On/Off"
         android:id="@+id/endButton"
         android:onClick="onLogging"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"/>
+        android:layout_below="@+id/logoutButton"
+        android:layout_alignLeft="@+id/logoutButton"
+        android:layout_alignStart="@+id/logoutButton" />
 
     <Button
         android:layout_width="wrap_content"
@@ -57,10 +51,10 @@
         android:text="Settings"
         android:onClick="onSettingsClicked"
         android:icon="@android:drawable/ic_menu_preferences"
-        android:layout_marginTop="22dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/endButton"
-        android:id="@+id/button2"/>
+        android:id="@+id/button2"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -68,8 +62,16 @@
         android:text="Clear User"
         android:id="@+id/logoutButton"
         android:onClick="onLogoutClicked"
-        android:layout_marginTop="42dp"
-        android:layout_below="@+id/button2"
-        android:layout_centerHorizontal="true"/>
+        android:layout_below="@+id/passengerbutton"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="History"
+        android:onClick="onHistoryClicked"
+        android:id="@+id/button"
+        android:layout_below="@+id/endButton"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

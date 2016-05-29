@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:composition template="/template.xhtml">
+        <ui:define name="title">
+            <h:outputText value="#{bundle.ViewUserTitle}"></h:outputText>
+        </ui:define>
+        <ui:define name="body">
+            <h:panelGroup id="messagePanel" layout="block">
+                <h:messages errorStyle="color: red" infoStyle="color: green" layout="table"/>
+            </h:panelGroup>
+            <h:form>
+                <h:panelGrid columns="2">
+                    <h:outputText value="#{bundle.ViewUserLabel_userId}"/>
+                    <h:outputText value="#{userController.selected.userId}" title="#{bundle.ViewUserTitle_userId}"/>
+                    <h:outputText value="#{bundle.ViewUserLabel_username}"/>
+                    <h:outputText value="#{userController.selected.username}" title="#{bundle.ViewUserTitle_username}"/>
+                    <h:outputText value="#{bundle.ViewUserLabel_password}"/>
+                    <h:outputText value="#{userController.selected.password}" title="#{bundle.ViewUserTitle_password}"/>
+                    <h:outputText value="#{bundle.ViewUserLabel_points}"/>
+                    <h:outputText value="#{userController.selected.points}" title="#{bundle.ViewUserTitle_points}"/>
+                    <h:outputText value="#{bundle.ViewUserLabel_status}"/>
+                    <h:outputText value="#{userController.selected.status}" title="#{bundle.ViewUserTitle_status}"/>
+                    <h:outputText value="#{bundle.ViewUserLabel_lat}"/>
+                    <h:outputText value="#{userController.selected.lat}" title="#{bundle.ViewUserTitle_lat}"/>
+                    <h:outputText value="#{bundle.ViewUserLabel_lng}"/>
+                    <h:outputText value="#{userController.selected.lng}" title="#{bundle.ViewUserTitle_lng}"/>
+                    <h:outputText value="#{bundle.ViewUserLabel_destLat}"/>
+                    <h:outputText value="#{userController.selected.destLat}" title="#{bundle.ViewUserTitle_destLat}"/>
+                    <h:outputText value="#{bundle.ViewUserLabel_destLng}"/>
+                    <h:outputText value="#{userController.selected.destLng}" title="#{bundle.ViewUserTitle_destLng}"/>
+                    <h:outputText value="#{bundle.ViewUserLabel_proximity}"/>
+                    <h:outputText value="#{userController.selected.proximity}" title="#{bundle.ViewUserTitle_proximity}"/>
+                    
+                    <h:outputText value="#{userController.selected.transactionCollection}" title="#{bundle.ViewUserTitle_proximity}"/>
+                </h:panelGrid>
+                <br />
+                <h:commandLink action="#{userController.destroyAndView}" value="#{bundle.ViewUserDestroyLink}"/>
+                <br />
+                <br />
+                <h:link outcome="Edit" value="#{bundle.ViewUserEditLink}"/>
+                <br />
+                <h:commandLink action="#{userController.prepareCreate}" value="#{bundle.ViewUserCreateLink}" />
+                <br />
+                <h:commandLink action="#{userController.prepareList}" value="#{bundle.ViewUserShowAllLink}"/>
+                <br />
+                <br />
+                <h:link outcome="/index" value="#{bundle.ViewUserIndexLink}"/>
+
+            </h:form>
+        </ui:define>
+    </ui:composition>
+
+</html>
