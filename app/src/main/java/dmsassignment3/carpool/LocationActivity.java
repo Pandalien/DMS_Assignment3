@@ -169,6 +169,7 @@ public class LocationActivity extends AppCompatActivity implements
 
         // must be called last, at the end of the constructor
         updateControls();
+        copyUsernameToSharedPrefs();
     } // onCreate
 
     @Override
@@ -529,6 +530,8 @@ public class LocationActivity extends AppCompatActivity implements
             userpass.put("password", password);
             writeJSONObject(out, userpass);
             out.close();
+
+            copyUsernameToSharedPrefs();
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -542,6 +545,17 @@ public class LocationActivity extends AppCompatActivity implements
         intent.putExtra("usertype", usertype);
         startActivityForResult(intent, REQUEST_CODE_LOGIN_ACTIVITY);
     } // askUserPass
+
+
+    public void copyUsernameToSharedPrefs() {
+        String username = "";
+        JSONObject userpass = getUserPass();
+        if (userpass != null)
+          username = userpass.optString("username");
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.edit().putString("username", username);
+    } // copyUsernameToSharedPrefs
+
 
 
     @Override

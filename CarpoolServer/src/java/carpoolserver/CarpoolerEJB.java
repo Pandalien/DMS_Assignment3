@@ -284,22 +284,26 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       PreparedStatement preparedStatement = null;
       String query = "";
       if (forUser.getStatus() == User.DRIVER) {
+        
+        // passengers requesting a lift:        
         query = "select *"
-              + " from " + dbName + "." + userTableName + " u"
-              + "     ," + dbName + "." + transactionTableName + " t"
+              + " from " + dbName + "." + userTableName 
               + " where u.user_id != ?"
-              + " and ((u.status = ?) or"              
-              + "      (u.status in (?, ?, ?) and"
-              + "       t.transaction_id = u.transaction_id"
-              + "       and t.driver_id = ?)"
-              + "     );";
+              + " and u.status = ?;";
         preparedStatement = connection.prepareStatement(query);
         preparedStatement.setInt(1, forUser.getUserID());
-        preparedStatement.setInt(2, User.PASSENGER);
-        preparedStatement.setInt(3, User.PASSENGER_PENDING);        
-        preparedStatement.setInt(4, User.PASSENGER_COLLECTED);        
-        preparedStatement.setInt(5, User.PASSENGER_COMPLETED);                
-        preparedStatement.setInt(6, forUser.getUserID());                        
+        preparedStatement.setInt(2, User.PASSENGER);                           
+                
+        // passengers in an active transaction with this driver:      
+        query = "select passenger_id"
+              + " from " + dbName + "." + transactionTableName 
+              + " where (status = ? or status = ?)"
+              + " and driver_id = ?";
+        preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setInt(1, User.PASSENGER_PENDING);        
+        preparedStatement.setInt(2, User.PASSENGER_COLLECTED);  
+        preparedStatement.setInt(3, forUser.getUserID());        
+       
       }
       else if (forUser.getStatus() == User.PASSENGER) {
         query = "select * from " + dbName + "." + userTableName
