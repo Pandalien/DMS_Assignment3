@@ -17,7 +17,8 @@ import org.json.*;
 public class Carpooler extends HttpServlet {
   
   @EJB private CarpoolerEJBInterface carpoolerEJB;  
-
+  
+  
   /**
    * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
    * methods.
@@ -84,15 +85,16 @@ public class Carpooler extends HttpServlet {
     // If valid request, call the named function
     else if (jsonRequest != null) {
     
-      // all successful requests should receive back an updated list of 
-      // drivers/passengers in range, where lat/lng are not null
-      HttpSession session = request.getSession();      
-      User user;
-      try {
-        user = (User)session.getAttribute("user");
-      }
-      catch (IllegalStateException e) {
-        user = null;
+      HttpSession session = request.getSession(true);      
+
+      int user_id = 0;
+      User user = null;      
+//        user = (User)session.getAttribute("user");
+
+      Integer user_id_object = (Integer)session.getAttribute("user_id");
+      if (user_id_object != null) {
+        user_id = user_id_object.intValue();
+        user = carpoolerEJB.getUser(user_id);
       }
       
       String function = jsonRequest.optString("function", "");
@@ -117,12 +119,24 @@ public class Carpooler extends HttpServlet {
           else
             result = carpoolerEJB.authenticateUser(username, password);            
           if (result == null) { // null result = no error
+
             user = carpoolerEJB.getUser(username);
-            session.setAttribute("user", user);
-            carpoolerEJB.updateStatus(user.getUserID(), usertype);            
-            carpoolerEJB.updateLocation(user.getUserID(), lat, lng);
-            carpoolerEJB.updateDestination(user.getUserID(), dest_lat, dest_lng);
-            carpoolerEJB.updateProximity(user.getUserID(), proximity);
+            user_id = user.getUserID();
+            // session user_id is set and created once here and does not change 
+            // for the remainder of the session
+            session.setAttribute("user_id", new Integer(user_id));             
+            
+            user.setStatus(usertype);
+            user.setLatLng(lat, lng);
+            user.setDestLatLng(dest_lat, dest_lng);
+            user.setProximity(proximity);
+            carpoolerEJB.updateFromUser(user);            
+/*
+            carpoolerEJB.updateStatus(user_id, usertype);            
+            carpoolerEJB.updateLocation(user_id, lat, lng);
+            carpoolerEJB.updateDestination(user_id, dest_lat, dest_lng);
+            carpoolerEJB.updateProximity(user_id, proximity);
+*/            
             
             try {
               jsonResponse.put("userlist", carpoolerEJB.getUserList(user));
@@ -135,16 +149,33 @@ public class Carpooler extends HttpServlet {
         }
       }
       else if (user != null) { // a valid user session bean must have been acquired for these next functions:
+        
         if (function.equals("logout")) {
-          session.removeAttribute("user");        
-          carpoolerEJB.updateStatus(user.getUserID(), User.OFFLINE);
+
+//          carpoolerEJB.updateStatus(user.getUserID(), User.OFFLINE);
+          carpoolerEJB.updateStatus(user_id, User.OFFLINE);
+          session.invalidate();
+          
         }        
         else if (function.equals("locationupdate")) {
+          
           double lat = jsonRequest.optDouble("lat", 0);
           double lng = jsonRequest.optDouble("lng", 0);
-          carpoolerEJB.updateLocation(user.getUserID(), lat, lng);
+//          carpoolerEJB.updateLocation(user.getUserID(), lat, lng);
+          carpoolerEJB.updateLocation(user_id, lat, lng);
           
+          // update response tailered for passenger or driver
+          // IN ADDITION:
+          // PASSENGER must receive the DRIVER_ID/USERNAME of for a pending lift -
+          // This is the information that must match the NFC or QRcode on the
+          // Android device before it transmits a INPROGRESS message.
           try {
+            // this is a continous update, because the other party may cancel the transaction
+            if (user.getStatus() == User.PASSENGER_PENDING) {
+              int driver_id = carpoolerEJB.getDriverId(user.getTransactionId());
+              User driver = carpoolerEJB.getUser(driver_id);
+              jsonResponse.put("driver", driver.toJSONObject());              
+            }
             jsonResponse.put("userlist", carpoolerEJB.getUserList(user));
           }
           catch (Exception e) {
@@ -154,24 +185,81 @@ public class Carpooler extends HttpServlet {
         }
         // next are Transaction updates:
         else if (function.equals("pending")) {
+          
           // sent by driver's phone
           // this indicates to the system that no other driver should collect this passenger
+          int transaction_id = 0;          
           int passenger_id = jsonRequest.optInt("passenger_id", 0);
+          if (passenger_id > 0) {
+            transaction_id = carpoolerEJB.newPendingTransaction(user_id, passenger_id);            
+            carpoolerEJB.updateTransactionId(passenger_id, transaction_id);
+            carpoolerEJB.updateStatus(passenger_id, User.PASSENGER_PENDING);                        
+/*            
+            transaction_id = carpoolerEJB.newPendingTransaction(user.getUserID(), passenger_id);            
+            carpoolerEJB.updateTransactionId(passenger_id, transaction_id);
+            carpoolerEJB.updateStatus(passenger_id, User.PASSENGER_PENDING);            
+*/            
+          }
+         
+          try {
+            jsonResponse.put("userlist", carpoolerEJB.getUserList(user));
+          }
+          catch (Exception e) {
+            System.err.println(e.getMessage());            
+          }
+          
         }
-        else if (function.equals("cancel")) {
+        else if (function.equals("cancelled")) {
+          
           // may be sent by either driver or passenger
           // cancels the pending transaction
+
+          int transaction_id = jsonRequest.optInt("transaction_id", 0);
+          if (transaction_id > 0) 
+            carpoolerEJB.cancelPendingTransaction(transaction_id);
+          
+          try {
+            jsonResponse.put("userlist", carpoolerEJB.getUserList(user));
+          }
+          catch (Exception e) {
+            System.err.println(e.getMessage());            
+          }         
+          
         }
-        else if (function.equals("tagon")) {
+        else if (function.equals("inprogress")) {
+          
           // sent by passenger's phone
           // driver_id is read from NFC tag (or QR code)
-          int driver_id = jsonRequest.optInt("driver_id", 0);
+
+          int transaction_id = jsonRequest.optInt("transaction_id", 0);
+          long dt = new java.util.Date().getTime(); // unix timestamp
+          double lat = jsonRequest.optDouble("lat", 0);
+          double lng = jsonRequest.optDouble("lng", 0);          
+          if (transaction_id > 0) {
+//            carpoolerEJB.updateStatus(user.getUserID(), User.PASSENGER_COLLECTED);          
+            carpoolerEJB.updateStatus(user_id, User.PASSENGER_COLLECTED);          
+            carpoolerEJB.setTransactionInProgress(transaction_id, dt, lat, lng);
+          }
+          
         }
-        else if (function.equals("tagoff")) {
-          // sent by passenger's phone          
-          // driver_id is read from NFC tag (or QR code)          
-          int driver_id = jsonRequest.optInt("driver_id", 0);          
+        else if (function.equals("completed")) {
+          
+          // sent by passenger's phone        
+          // driver_id is read from NFC tag (or QR code)        
+          // optionally this can also be sent by the driver's phone if clicking the End button.
+          
+          int transaction_id = jsonRequest.optInt("transaction_id", 0);          
+          long dt = new java.util.Date().getTime(); // unix timestamp
+          double lat = jsonRequest.optDouble("lat", 0);
+          double lng = jsonRequest.optDouble("lng", 0);                    
+          if (transaction_id > 0) {
+//            carpoolerEJB.updateStatus(user.getUserID(), User.PASSENGER_COMPLETED);          
+            carpoolerEJB.updateStatus(user_id, User.PASSENGER_COMPLETED);          
+            carpoolerEJB.setTransactionCompleted(transaction_id, dt, lat, lng);            
+          }
+          
         }
+
       }
       else
         result = "No function.";

@@ -16,6 +16,9 @@ public class User implements Serializable {
   public static int OFFLINE = 0;
   public static int DRIVER = 1;
   public static int PASSENGER = 2;
+  public static int PASSENGER_PENDING = 3;
+  public static int PASSENGER_COLLECTED = 4;
+  public static int PASSENGER_COMPLETED = 5;
   
   // User session fields
   private int user_id;
@@ -27,6 +30,7 @@ public class User implements Serializable {
   private double dest_lat;
   private double dest_lng;
   private double proximity; // km
+  private int transaction_id; // primary key for transaction table, 0 = no transaction
   
   public User() {
     user_id = 0;
@@ -38,6 +42,7 @@ public class User implements Serializable {
     dest_lat = 0;
     dest_lng = 0;
     proximity = 1;
+    transaction_id = 0;
   }
   
   public User(JSONObject jsonObject) {
@@ -50,6 +55,27 @@ public class User implements Serializable {
     dest_lat = jsonObject.optDouble("dest_lat", 0);
     dest_lng = jsonObject.optDouble("dest_lng", 0);
     proximity = jsonObject.optDouble("proximity", proximity);    
+    transaction_id = jsonObject.optInt("transaction_id", 0);
+  }
+  
+  public JSONObject toJSONObject()  {
+    JSONObject jsonObject = new JSONObject();
+    try {
+      jsonObject.put("user_id", user_id);
+      jsonObject.put("username", username);
+      jsonObject.put("points", points);
+      jsonObject.put("status", status);
+      jsonObject.put("lat", lat);
+      jsonObject.put("lng", lng);
+      jsonObject.put("dest_lat", dest_lat);
+      jsonObject.put("dest_lng", dest_lng);
+      jsonObject.put("proximity", proximity);
+      jsonObject.put("transaction_id", transaction_id);
+    }
+    catch (Exception e) {
+      System.err.println(e.getMessage());
+    }
+    return jsonObject;
   }
 
   public int getUserID() {
@@ -82,6 +108,10 @@ public class User implements Serializable {
   
   public boolean isPassenger() {
     return status == PASSENGER;
+  }
+  
+  public int getStatus() {
+    return status;
   }
   
   public void setStatus(int status) {
@@ -122,27 +152,16 @@ public class User implements Serializable {
     this.proximity = proximity;
   }
   
+  public int getTransactionId() {
+    return transaction_id;
+  }
+  
+  public void setTransactionId(int transaction_id) {
+    this.transaction_id = transaction_id;
+  }
+  
   public String toString() {
     return username;
-  }
-
-  public JSONObject toJSONObject()  {
-    JSONObject jsonObject = new JSONObject();
-    try {
-      jsonObject.put("user_id", user_id);
-      jsonObject.put("username", username);
-      jsonObject.put("points", points);
-      jsonObject.put("status", status);
-      jsonObject.put("lat", lat);
-      jsonObject.put("lng", lng);
-      jsonObject.put("dest_lat", dest_lat);
-      jsonObject.put("dest_lng", dest_lng);
-      jsonObject.put("proximity", proximity);
-    }
-    catch (Exception e) {
-      System.err.println(e.getMessage());
-    }
-    return jsonObject;
   }
   
 }
