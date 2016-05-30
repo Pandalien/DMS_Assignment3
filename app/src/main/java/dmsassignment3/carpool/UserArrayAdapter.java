@@ -58,7 +58,11 @@ public class UserArrayAdapter extends ArrayAdapter<User> {
         actionButton.setVisibility(View.INVISIBLE);
 
         // but should be one of these:
-        if (user.getStatus() == User.PASSENGER) {
+        if (user.getStatus() == User.DRIVER) {
+            statusTextView.setText("driver");
+            actionButton.setVisibility(View.INVISIBLE);
+        }
+        else if (user.getStatus() == User.PASSENGER) {
             statusTextView.setText("requesting a lift");
             actionButton.setText("Collect");
             actionButton.setVisibility(View.VISIBLE);

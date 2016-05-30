@@ -46,7 +46,7 @@ public class LocationActivity extends AppCompatActivity implements
 
     // following two fields valid for Passengers only:
     // (One driver can have many passengers, but a passenger can have only one driver).
-    int transaction_id;
+//    int transaction_id;
     int driver_id;
 
 
@@ -129,7 +129,7 @@ public class LocationActivity extends AppCompatActivity implements
 
 
         user = new User();
-        transaction_id = 0;
+        //transaction_id = 0;
         driver_id = 0;
 
 
@@ -343,11 +343,11 @@ public class LocationActivity extends AppCompatActivity implements
         }
         // Driver clicked Cancel
         else if (user.getStatus() == User.PASSENGER_PENDING) {
-            transactionCancelled(user.getTransactionId());
+            transactionCancelled(user.getUserID());
         }
         // Driver clicked End
         else if (user.getStatus() == User.PASSENGER_COLLECTED)
-            transactionCompleted(user.getTransactionId(), youMarker.getPosition().latitude, youMarker.getPosition().longitude);
+            transactionCompleted(user.getUserID(), youMarker.getPosition().latitude, youMarker.getPosition().longitude);
         userList.add(position, user);
         userListAdapter.notifyDataSetChanged();
     } // onActionButtonClick
@@ -610,6 +610,8 @@ public class LocationActivity extends AppCompatActivity implements
 
             // update/create a new user object using the appropriate fields from this login command
             // if the log-in is successful the status is updated by loggedIn()
+            // update: actually the user object is recreated after login from information sent by the
+            // server. This may not be needed here.
             user = new User(cmd);
 
         } catch (Exception e) {
@@ -638,6 +640,13 @@ public class LocationActivity extends AppCompatActivity implements
     private class LoginComm extends HttpJsonCommunicator {
 
         protected void ok(JSONObject response) {
+            if (response.has("user"))
+                try {
+                    user = new User(response.optJSONObject("user"));
+                }
+                catch (Exception e) {
+                    System.err.println(e);
+                }
             loggedIn();
         }
 
@@ -654,6 +663,13 @@ public class LocationActivity extends AppCompatActivity implements
     private class CreateAccountComm extends HttpJsonCommunicator {
 
         protected void ok(JSONObject response) {
+            if (response.has("user"))
+                try {
+                    user = new User(response.optJSONObject("user"));
+                }
+                catch (Exception e) {
+                    System.err.println(e);
+                }
             loggedIn();
         }
 
@@ -722,7 +738,7 @@ public class LocationActivity extends AppCompatActivity implements
             if (response.has("transaction"))
                 try {
                     JSONObject jsonTransaction = response.getJSONObject("transaction");
-                    transaction_id = jsonTransaction.optInt("transaction_id", 0);
+                    //transaction_id = jsonTransaction.optInt("transaction_id", 0);
                     driver_id = jsonTransaction.optInt("driver_id", 0);
                 }
                 catch (Exception e) {
@@ -788,11 +804,13 @@ public class LocationActivity extends AppCompatActivity implements
     // ------ HTTP command: Cancelled ------
 
 
-    protected void transactionCancelled(int transaction_id) {
+    protected void transactionCancelled(int other_user_id) {
         JSONObject cmd = new JSONObject();
         try {
             cmd.put("function", "cancelled");
-            cmd.put("transaction_id", transaction_id);
+          //  cmd.put("passenger_id", !user.isDriver() ? user.getUserID() : other_user_id);
+          //  cmd.put("driver_id", user.isDriver() ? user.getUserID() : other_user_id);
+            cmd.put("other_user_id", other_user_id);
             executeComm(cmd, new TransactionCancelledComm());
         }
         catch (Exception e) {
@@ -822,16 +840,16 @@ public class LocationActivity extends AppCompatActivity implements
 
 
 
-    // ------ HTTP command: In Progress ------
+    // ------ HTTP command: Collected ------
     // Sent by passenger's phone.
     // The NFC/QR match is verified by the phone, if successful then sends this message:
 
 
-    protected void transactionInProgress(int transaction_id, double lat, double lng) {
+    protected void transactionCollected(int driver_id, double lat, double lng) {
         JSONObject cmd = new JSONObject();
         try {
             cmd.put("function", "command");
-            cmd.put("transaction_id", transaction_id);
+            cmd.put("driver_id", driver_id);
             cmd.put("lat", lat);
             cmd.put("lng", lng);
             executeComm(cmd, new TransactionInProgressComm());
@@ -839,7 +857,7 @@ public class LocationActivity extends AppCompatActivity implements
         catch (Exception e) {
             System.err.println(e.getMessage());
         }
-    } // transactionInProgress
+    } // transactionCollected
 
 
     private class TransactionInProgressComm extends HttpJsonCommunicator {

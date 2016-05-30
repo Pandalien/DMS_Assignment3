@@ -11,4 +11,5 @@
         <property name="driverClass" value="com.mysql.jdbc.Driver"/>
     </jdbc-connection-pool>
     <jdbc-resource enabled="true" jndi-name="java:app/carpoolerDB" object-type="user" pool-name="mysql_carpooler_rootPool"/>
+    <jdbc-resource enabled="true" jndi-name="java:app/carpooler" object-type="user" pool-name="mysql_carpooler_rootPool"/>
 </resources>

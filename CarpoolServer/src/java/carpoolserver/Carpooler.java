@@ -133,14 +133,11 @@ public class Carpooler extends HttpServlet {
             user.setDestLatLng(dest_lat, dest_lng);
             user.setProximity(proximity);
             carpoolerEJB.updateFromUser(user);            
-/*
-            carpoolerEJB.updateStatus(user_id, usertype);            
-            carpoolerEJB.updateLocation(user_id, lat, lng);
-            carpoolerEJB.updateDestination(user_id, dest_lat, dest_lng);
-            carpoolerEJB.updateProximity(user_id, proximity);
-*/            
-            
+        
             try {
+              // send back all this user's details at login
+              jsonResponse.put("user", user.toJSONObject());
+              // send back user list (this is refreshed by locationupdate below)
               jsonResponse.put("userlist", carpoolerEJB.getUserList(user));
             }
             catch (Exception e) {
@@ -213,7 +210,15 @@ public class Carpooler extends HttpServlet {
           // may be sent by either driver or passenger
           // cancels the pending transaction
 
-          int transaction_id = jsonRequest.optInt("transaction_id", 0);
+   //       int transaction_id = jsonRequest.optInt("transaction_id", 0);
+          int other_user_id = jsonRequest.optInt("other_user_id", 0);
+          if (other_user_id > 0) {
+            int transaction_id = carpoolerEJB.findTransactionInfo(User.PASSENGER_PENDING, 
+                    user.isDriver() ? other_user_id : user.getUserID());
+            carpoolerEJB.cancelPendingTransaction(transaction_id);
+          }
+   
+   
           if (transaction_id > 0) 
             carpoolerEJB.cancelPendingTransaction(transaction_id);
           
