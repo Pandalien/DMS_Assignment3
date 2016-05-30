@@ -211,13 +211,13 @@ public class Carpooler extends HttpServlet {
           // cancels the pending transaction
 
    //       int transaction_id = jsonRequest.optInt("transaction_id", 0);
+          int transaction_id = 0;
           int other_user_id = jsonRequest.optInt("other_user_id", 0);
           if (other_user_id > 0) {
-            int transaction_id = carpoolerEJB.findTransactionInfo(User.PASSENGER_PENDING, 
+            transaction_id = carpoolerEJB.findTransactionInfo(User.PASSENGER_PENDING, 
                     user.isDriver() ? other_user_id : user.getUserID());
             carpoolerEJB.cancelPendingTransaction(transaction_id);
           }
-   
    
           if (transaction_id > 0) 
             carpoolerEJB.cancelPendingTransaction(transaction_id);

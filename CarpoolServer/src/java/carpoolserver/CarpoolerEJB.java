@@ -487,9 +487,9 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
   } // updateTransactionId
   
   
-  public JSONObject findTransactionInfo(int status, int passenger_id) {
+  public int findTransactionInfo(int status, int passenger_id) {
     int transaction_id = 0;
-    int driver_id = 0;
+ //   int driver_id = 0;
     
     // get most recent pending transaction for this passenger
     try {
@@ -497,24 +497,25 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       String query = "select transaction_id"
                    + " from " + dbName + "." + transactionTableName 
                    + " where status = ?"
-                   + " and passenger_id = ?"
+                   + " and passenger_id = ? "
                    + (status == User.PASSENGER_PENDING ? "order by pending_dt"
                     : status == User.PASSENGER_COLLECTED ? "order by collected_dt"
                     : status == User.PASSENGER_COMPLETED ? "order by completed_dt"
-                    : ";");      
+                    : "")
+                   + ";";      
       preparedStatement = connection.prepareStatement(query);
       preparedStatement.setInt(1, status);
       preparedStatement.setInt(2, passenger_id);      
       ResultSet resultSet = preparedStatement.executeQuery();
       if (resultSet.next()) {
         transaction_id = resultSet.getInt("transaction_id");        
-        driver_id = resultSet.getInt("driver_id");
+ //       driver_id = resultSet.getInt("driver_id");
       }
     }
     catch (Exception e) {
       System.err.println(e.getMessage());                  
     }
-    
+/*    
     // second, send back the json object
     JSONObject jsonTransaction = new JSONObject();
     try {
@@ -523,9 +524,10 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
     }
     catch (Exception e) {
       System.err.println(e.getMessage());
-    }
-    
+    }    
     return jsonTransaction;    
+*/
+    return transaction_id;
   } // findPendingTransactionInfo
 
 
