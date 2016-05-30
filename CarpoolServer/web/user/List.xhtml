@@ -28,30 +28,6 @@
                         </h:column>
                         <h:column>
                             <f:facet name="header">
-                                <h:outputText value="#{bundle.ListUserTitle_username}"/>
-                            </f:facet>
-                            <h:outputText value="#{item.username}"/>
-                        </h:column>
-                        <h:column>
-                            <f:facet name="header">
-                                <h:outputText value="#{bundle.ListUserTitle_password}"/>
-                            </f:facet>
-                            <h:outputText value="#{item.password}"/>
-                        </h:column>
-                        <h:column>
-                            <f:facet name="header">
-                                <h:outputText value="#{bundle.ListUserTitle_points}"/>
-                            </f:facet>
-                            <h:outputText value="#{item.points}"/>
-                        </h:column>
-                        <h:column>
-                            <f:facet name="header">
-                                <h:outputText value="#{bundle.ListUserTitle_status}"/>
-                            </f:facet>
-                            <h:outputText value="#{item.status}"/>
-                        </h:column>
-                        <h:column>
-                            <f:facet name="header">
                                 <h:outputText value="#{bundle.ListUserTitle_lat}"/>
                             </f:facet>
                             <h:outputText value="#{item.lat}"/>
@@ -61,6 +37,18 @@
                                 <h:outputText value="#{bundle.ListUserTitle_lng}"/>
                             </f:facet>
                             <h:outputText value="#{item.lng}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListUserTitle_points}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.points}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListUserTitle_proximity}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.proximity}"/>
                         </h:column>
                         <h:column>
                             <f:facet name="header">
@@ -76,9 +64,21 @@
                         </h:column>
                         <h:column>
                             <f:facet name="header">
-                                <h:outputText value="#{bundle.ListUserTitle_proximity}"/>
+                                <h:outputText value="#{bundle.ListUserTitle_username}"/>
                             </f:facet>
-                            <h:outputText value="#{item.proximity}"/>
+                            <h:outputText value="#{item.username}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListUserTitle_password}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.password}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListUserTitle_status}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.status}"/>
                         </h:column>
                         <h:column>
                             <f:facet name="header">

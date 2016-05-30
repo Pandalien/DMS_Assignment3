@@ -12,7 +12,6 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,9 +25,10 @@ import java.nio.charset.Charset;
 
 import dmsassignment3.carpool.R;
 
-public class TagonTagoffActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback {
-    NfcAdapter mNfcAdapter;
-    TextView textView;
+public class TagonTagoffActivity extends AppCompatActivity{
+    //NfcAdapter mNfcAdapter;
+    TextView tvPassenger;
+    TextView tvDriver;
     SharedPreferences prefs;
     String user;
     String driver;
@@ -41,21 +41,34 @@ public class TagonTagoffActivity extends AppCompatActivity implements NfcAdapter
         setContentView(R.layout.activity_tagon_tagoff);
         setupActionBar();
 
-        textView = (TextView) findViewById(R.id.tvUser);
+        tvPassenger = (TextView) findViewById(R.id.tvPassenger);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        user = prefs.getString("example_text", "N/A");
-        textView.setText(user);
+        user = prefs.getString("username", "");
+        tvPassenger.setText(user);
 
-
+/*
         // Check for available NFC Adapter
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter == null) {
-            Toast.makeText(this, "NFC is not available, please use QR scanner", Toast.LENGTH_LONG).show();
-            finish();
-            return;
+            Toast.makeText(this, "NFC is not available, you can use QR scanner", Toast.LENGTH_LONG).show();
+            //finish();
+            //return;
+        }else{
+            // Register callback
+            mNfcAdapter.setNdefPushMessageCallback(this, this);
         }
-        // Register callback
-        mNfcAdapter.setNdefPushMessageCallback(this, this);
+*/
+        //get NFC tag name
+        tvDriver = (TextView)findViewById(R.id.tvDriver);
+        Intent intent = getIntent();
+        //Check mime type, get ndef message  from intent and display the message in text view
+        if(intent.getType() != null && intent.getType().equals("application/aut.dms.carpooler")) {
+            Parcelable[] rawMsgs = getIntent().getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+            NdefMessage msg = (NdefMessage) rawMsgs[0];
+            NdefRecord record = msg.getRecords()[0];
+            String driverName = new String(record.getPayload());
+            tvDriver.setText(driverName);
+        }
     }
     private void setupActionBar() {
         ActionBar actionBar = getSupportActionBar();
@@ -74,61 +87,6 @@ public class TagonTagoffActivity extends AppCompatActivity implements NfcAdapter
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-    @Override
-    public NdefMessage createNdefMessage(NfcEvent event) {
-        String text = ("Beam me up, Android!\n\n" +
-                "Beam Time: " + System.currentTimeMillis());
-        NdefMessage msg = new NdefMessage(
-                new NdefRecord[] { createMimeRecord(
-                        "application/com.example.hellonfcworld", text.getBytes())
-                        /**
-                         * The Android Application Record (AAR) is commented out. When a device
-                         * receives a push with an AAR in it, the application specified in the AAR
-                         * is guaranteed to run. The AAR overrides the tag dispatch system.
-                         * You can add it back in to guarantee that this
-                         * activity starts when receiving a beamed message. For now, this code
-                         * uses the tag dispatch system.
-                        */
-                        //,NdefRecord.createApplicationRecord("com.example.android.beam")
-                });
-        return msg;
-    }
-    @Override
-    public void onResume() {
-        super.onResume();
-        // Check to see that the Activity started due to an Android Beam
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
-            processIntent(getIntent());
-        }
-    }
-    @Override
-    public void onNewIntent(Intent intent) {
-        // onResume gets called after this to handle the intent
-        setIntent(intent);
-    }
-    /**
-     * Parses the NDEF Message from the intent and prints to the TextView
-     */
-    void processIntent(Intent intent) {
-        textView = (TextView) findViewById(R.id.tvUser);
-        Parcelable[] rawMsgs = intent.getParcelableArrayExtra(
-                NfcAdapter.EXTRA_NDEF_MESSAGES);
-        // only one message sent during the beam
-        NdefMessage msg = (NdefMessage) rawMsgs[0];
-        // record 0 contains the MIME type, record 1 is the AAR, if present
-        createCarpoolRecord(new String(msg.getRecords()[0].getPayload()));
-    }
-    /**
-     * Creates a custom MIME type encapsulated in an NDEF record
-     *
-     * @param mimeType
-     */
-    public NdefRecord createMimeRecord(String mimeType, byte[] payload) {
-        byte[] mimeBytes = mimeType.getBytes(Charset.forName("US-ASCII"));
-        NdefRecord mimeRecord = new NdefRecord(
-                NdefRecord.TNF_MIME_MEDIA, mimeBytes, new byte[0], payload);
-        return mimeRecord;
     }
 
     public void onScanQr(View view){
@@ -159,7 +117,7 @@ public class TagonTagoffActivity extends AppCompatActivity implements NfcAdapter
     }
 
     public void createCarpoolRecord(String driverName){
-        textView.setText(driverName);
+        tvDriver.setText(driverName);
     }
 
     public void createTagonRecord(View view){

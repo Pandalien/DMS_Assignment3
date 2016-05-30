@@ -1,5 +1,7 @@
 /*
- * Carpool Server, DMS Assignment 3
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package models;
 
@@ -23,7 +25,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author Administrator
+ * @author andyc
  */
 @Entity
 @Table(name = "user")
@@ -31,16 +33,17 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "User.findAll", query = "SELECT u FROM User u"),
     @NamedQuery(name = "User.findByUserId", query = "SELECT u FROM User u WHERE u.userId = :userId"),
-    @NamedQuery(name = "User.findByUsername", query = "SELECT u FROM User u WHERE u.username = :username"),
-    @NamedQuery(name = "User.findByPassword", query = "SELECT u FROM User u WHERE u.password = :password"),
-    @NamedQuery(name = "User.findByUsernameAndPassword", query = "SELECT u FROM User u WHERE u.username = :username AND u.password = :password"),
-    @NamedQuery(name = "User.findByPoints", query = "SELECT u FROM User u WHERE u.points = :points"),
-    @NamedQuery(name = "User.findByStatus", query = "SELECT u FROM User u WHERE u.status = :status"),
     @NamedQuery(name = "User.findByLat", query = "SELECT u FROM User u WHERE u.lat = :lat"),
     @NamedQuery(name = "User.findByLng", query = "SELECT u FROM User u WHERE u.lng = :lng"),
+    @NamedQuery(name = "User.findByPoints", query = "SELECT u FROM User u WHERE u.points = :points"),
+    @NamedQuery(name = "User.findByProximity", query = "SELECT u FROM User u WHERE u.proximity = :proximity"),
     @NamedQuery(name = "User.findByDestLat", query = "SELECT u FROM User u WHERE u.destLat = :destLat"),
     @NamedQuery(name = "User.findByDestLng", query = "SELECT u FROM User u WHERE u.destLng = :destLng"),
-    @NamedQuery(name = "User.findByProximity", query = "SELECT u FROM User u WHERE u.proximity = :proximity")})
+    @NamedQuery(name = "User.findByUsername", query = "SELECT u FROM User u WHERE u.username = :username"),
+    @NamedQuery(name = "User.findByPassword", query = "SELECT u FROM User u WHERE u.password = :password"),
+    @NamedQuery(name = "User.findByStatus", query = "SELECT u FROM User u WHERE u.status = :status"),
+    @NamedQuery(name = "User.findByUsernameAndPassword", query = "SELECT u FROM User u WHERE u.username = :username AND u.password = :password")
+})
 public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -49,6 +52,19 @@ public class User implements Serializable {
     @Basic(optional = false)
     @Column(name = "user_id")
     private Integer userId;
+    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
+    @Column(name = "lat")
+    private Double lat;
+    @Column(name = "lng")
+    private Double lng;
+    @Column(name = "points")
+    private Integer points;
+    @Column(name = "proximity")
+    private Double proximity;
+    @Column(name = "dest_lat")
+    private Double destLat;
+    @Column(name = "dest_lng")
+    private Double destLng;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
@@ -61,26 +77,11 @@ public class User implements Serializable {
     private String password;
     @Basic(optional = false)
     @NotNull
-    @Column(name = "points")
-    private int points;
-    @Basic(optional = false)
-    @NotNull
     @Column(name = "status")
     private int status;
-    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
-    @Column(name = "lat")
-    private Double lat;
-    @Column(name = "lng")
-    private Double lng;
-    @Column(name = "dest_lat")
-    private Double destLat;
-    @Column(name = "dest_lng")
-    private Double destLng;
-    @Column(name = "proximity")
-    private Double proximity;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "passengerId")
-    private Collection<Transaction> transactionCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "driverId")
+    private Collection<Transaction> transactionCollection;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "passengerId")
     private Collection<Transaction> transactionCollection1;
 
     public User() {
@@ -90,11 +91,10 @@ public class User implements Serializable {
         this.userId = userId;
     }
 
-    public User(Integer userId, String username, String password, int points, int status) {
+    public User(Integer userId, String username, String password, int status) {
         this.userId = userId;
         this.username = username;
         this.password = password;
-        this.points = points;
         this.status = status;
     }
 
@@ -104,38 +104,6 @@ public class User implements Serializable {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public int getPoints() {
-        return points;
-    }
-
-    public void setPoints(int points) {
-        this.points = points;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
     }
 
     public Double getLat() {
@@ -154,6 +122,22 @@ public class User implements Serializable {
         this.lng = lng;
     }
 
+    public Integer getPoints() {
+        return points;
+    }
+
+    public void setPoints(Integer points) {
+        this.points = points;
+    }
+
+    public Double getProximity() {
+        return proximity;
+    }
+
+    public void setProximity(Double proximity) {
+        this.proximity = proximity;
+    }
+
     public Double getDestLat() {
         return destLat;
     }
@@ -170,12 +154,28 @@ public class User implements Serializable {
         this.destLng = destLng;
     }
 
-    public Double getProximity() {
-        return proximity;
+    public String getUsername() {
+        return username;
     }
 
-    public void setProximity(Double proximity) {
-        this.proximity = proximity;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     @XmlTransient

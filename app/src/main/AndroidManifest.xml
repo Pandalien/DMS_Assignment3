@@ -38,16 +38,17 @@
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".NfcQr.QRCodeDisplayActivity"
-            android:parentActivityName=".NfcQr.TagonTagoffActivity" />
+            android:parentActivityName=".NfcQr.TagonTagoffActivity">
+        </activity>
+
         <activity
             android:name=".NfcQr.TagonTagoffActivity"
             android:parentActivityName=".MainActivity">
+            <!-- Handle an NDEF record -->
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="application/dmsassignment3.carpool" />
+                <data android:mimeType="application/aut.dms.carpooler" />
             </intent-filter>
         </activity>
         <activity

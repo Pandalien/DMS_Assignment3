@@ -9,29 +9,29 @@
         <servlet-class>carpoolserver.Carpooler</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>TransactionServlet</servlet-name>
+        <servlet-class>carpoolserver.TransactionServlet</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>Faces Servlet</servlet-name>
         <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet>
-        <servlet-name>TransactionServlet</servlet-name>
-        <servlet-class>carpoolserver.TransactionServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>Carpooler</servlet-name>
         <url-pattern>/Carpooler</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>Faces Servlet</servlet-name>
-        <url-pattern>/faces/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>TransactionServlet</servlet-name>
         <url-pattern>/TransactionServlet</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>/faces/*</url-pattern>
+    </servlet-mapping>
     <session-config>
         <session-timeout>
-            0
+            30
         </session-timeout>
     </session-config>
     <welcome-file-list>

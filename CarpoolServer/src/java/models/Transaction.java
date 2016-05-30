@@ -1,5 +1,7 @@
 /*
- * Carpool Server, DMS Assignment 3
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package models;
 
@@ -18,12 +20,11 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Administrator
+ * @author andyc
  */
 @Entity
 @Table(name = "transaction")
@@ -31,17 +32,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NamedQueries({
     @NamedQuery(name = "Transaction.findAll", query = "SELECT t FROM Transaction t"),
     @NamedQuery(name = "Transaction.findByTransactionId", query = "SELECT t FROM Transaction t WHERE t.transactionId = :transactionId"),
-    @NamedQuery(name = "Transaction.findByStatus", query = "SELECT t FROM Transaction t WHERE t.status = :status"),
     @NamedQuery(name = "Transaction.findByCollectedDt", query = "SELECT t FROM Transaction t WHERE t.collectedDt = :collectedDt"),
     @NamedQuery(name = "Transaction.findByCollectedLat", query = "SELECT t FROM Transaction t WHERE t.collectedLat = :collectedLat"),
     @NamedQuery(name = "Transaction.findByCollectedLng", query = "SELECT t FROM Transaction t WHERE t.collectedLng = :collectedLng"),
-    @NamedQuery(name = "Transaction.findByDroppedDt", query = "SELECT t FROM Transaction t WHERE t.droppedDt = :droppedDt"),
-    @NamedQuery(name = "Transaction.findByDroppedLat", query = "SELECT t FROM Transaction t WHERE t.droppedLat = :droppedLat"),
-    @NamedQuery(name = "Transaction.findByDroppedLng", query = "SELECT t FROM Transaction t WHERE t.droppedLng = :droppedLng"),
+    @NamedQuery(name = "Transaction.findByStatus", query = "SELECT t FROM Transaction t WHERE t.status = :status"),
+    @NamedQuery(name = "Transaction.findByCompletedDt", query = "SELECT t FROM Transaction t WHERE t.completedDt = :completedDt"),
+    @NamedQuery(name = "Transaction.findByCompletedLat", query = "SELECT t FROM Transaction t WHERE t.completedLat = :completedLat"),
+    @NamedQuery(name = "Transaction.findByCompletedLng", query = "SELECT t FROM Transaction t WHERE t.completedLng = :completedLng"),
+    @NamedQuery(name = "Transaction.findByPendingDt", query = "SELECT t FROM Transaction t WHERE t.pendingDt = :pendingDt"),
     @NamedQuery(name = "Transaction.findByPassengerId", query = "SELECT t FROM Transaction t WHERE t.passengerId = :passengerId"),
     @NamedQuery(name = "Transaction.findByDriverId", query = "SELECT t FROM Transaction t WHERE t.driverId = :driverId")
 })
-
 public class Transaction implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -50,10 +51,6 @@ public class Transaction implements Serializable {
     @Basic(optional = false)
     @Column(name = "transaction_id")
     private Integer transactionId;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "status")
-    private int status;
     @Column(name = "collected_dt")
     @Temporal(TemporalType.TIMESTAMP)
     private Date collectedDt;
@@ -62,19 +59,24 @@ public class Transaction implements Serializable {
     private Double collectedLat;
     @Column(name = "collected_lng")
     private Double collectedLng;
-    @Column(name = "dropped_dt")
+    @Column(name = "status")
+    private Integer status;
+    @Column(name = "completed_dt")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date droppedDt;
-    @Column(name = "dropped_lat")
-    private Double droppedLat;
-    @Column(name = "dropped_lng")
-    private Double droppedLng;
-    @JoinColumn(name = "passenger_id", referencedColumnName = "user_id")
-    @ManyToOne(optional = false)
-    private User passengerId;
+    private Date completedDt;
+    @Column(name = "completed_lat")
+    private Double completedLat;
+    @Column(name = "completed_lng")
+    private Double completedLng;
+    @Column(name = "pending_dt")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date pendingDt;
     @JoinColumn(name = "driver_id", referencedColumnName = "user_id")
     @ManyToOne(optional = false)
     private User driverId;
+    @JoinColumn(name = "passenger_id", referencedColumnName = "user_id")
+    @ManyToOne(optional = false)
+    private User passengerId;
 
     public Transaction() {
     }
@@ -83,25 +85,12 @@ public class Transaction implements Serializable {
         this.transactionId = transactionId;
     }
 
-    public Transaction(Integer transactionId, int status) {
-        this.transactionId = transactionId;
-        this.status = status;
-    }
-
     public Integer getTransactionId() {
         return transactionId;
     }
 
     public void setTransactionId(Integer transactionId) {
         this.transactionId = transactionId;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
     }
 
     public Date getCollectedDt() {
@@ -128,36 +117,44 @@ public class Transaction implements Serializable {
         this.collectedLng = collectedLng;
     }
 
-    public Date getDroppedDt() {
-        return droppedDt;
+    public Integer getStatus() {
+        return status;
     }
 
-    public void setDroppedDt(Date droppedDt) {
-        this.droppedDt = droppedDt;
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
-    public Double getDroppedLat() {
-        return droppedLat;
+    public Date getCompletedDt() {
+        return completedDt;
     }
 
-    public void setDroppedLat(Double droppedLat) {
-        this.droppedLat = droppedLat;
+    public void setCompletedDt(Date completedDt) {
+        this.completedDt = completedDt;
     }
 
-    public Double getDroppedLng() {
-        return droppedLng;
+    public Double getCompletedLat() {
+        return completedLat;
     }
 
-    public void setDroppedLng(Double droppedLng) {
-        this.droppedLng = droppedLng;
+    public void setCompletedLat(Double completedLat) {
+        this.completedLat = completedLat;
     }
 
-    public User getPassengerId() {
-        return passengerId;
+    public Double getCompletedLng() {
+        return completedLng;
     }
 
-    public void setPassengerId(User passengerId) {
-        this.passengerId = passengerId;
+    public void setCompletedLng(Double completedLng) {
+        this.completedLng = completedLng;
+    }
+
+    public Date getPendingDt() {
+        return pendingDt;
+    }
+
+    public void setPendingDt(Date pendingDt) {
+        this.pendingDt = pendingDt;
     }
 
     public User getDriverId() {
@@ -166,6 +163,14 @@ public class Transaction implements Serializable {
 
     public void setDriverId(User driverId) {
         this.driverId = driverId;
+    }
+
+    public User getPassengerId() {
+        return passengerId;
+    }
+
+    public void setPassengerId(User passengerId) {
+        this.passengerId = passengerId;
     }
 
     @Override

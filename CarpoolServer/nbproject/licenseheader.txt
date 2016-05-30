@@ -1,7 +1,0 @@
-<#if licenseFirst??>
-${licenseFirst}
-</#if>
-${licensePrefix}Carpool Server, DMS Assignment 3
-<#if licenseLast??>
-${licenseLast}
-</#if>

@@ -17,8 +17,6 @@
                 <h:panelGrid columns="2">
                     <h:outputText value="#{bundle.ViewTransactionLabel_transactionId}"/>
                     <h:outputText value="#{transactionController.selected.transactionId}" title="#{bundle.ViewTransactionTitle_transactionId}"/>
-                    <h:outputText value="#{bundle.ViewTransactionLabel_status}"/>
-                    <h:outputText value="#{transactionController.selected.status}" title="#{bundle.ViewTransactionTitle_status}"/>
                     <h:outputText value="#{bundle.ViewTransactionLabel_collectedDt}"/>
                     <h:outputText value="#{transactionController.selected.collectedDt}" title="#{bundle.ViewTransactionTitle_collectedDt}">
                         <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
@@ -27,18 +25,24 @@
                     <h:outputText value="#{transactionController.selected.collectedLat}" title="#{bundle.ViewTransactionTitle_collectedLat}"/>
                     <h:outputText value="#{bundle.ViewTransactionLabel_collectedLng}"/>
                     <h:outputText value="#{transactionController.selected.collectedLng}" title="#{bundle.ViewTransactionTitle_collectedLng}"/>
-                    <h:outputText value="#{bundle.ViewTransactionLabel_droppedDt}"/>
-                    <h:outputText value="#{transactionController.selected.droppedDt}" title="#{bundle.ViewTransactionTitle_droppedDt}">
+                    <h:outputText value="#{bundle.ViewTransactionLabel_status}"/>
+                    <h:outputText value="#{transactionController.selected.status}" title="#{bundle.ViewTransactionTitle_status}"/>
+                    <h:outputText value="#{bundle.ViewTransactionLabel_completedDt}"/>
+                    <h:outputText value="#{transactionController.selected.completedDt}" title="#{bundle.ViewTransactionTitle_completedDt}">
                         <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
                     </h:outputText>
-                    <h:outputText value="#{bundle.ViewTransactionLabel_droppedLat}"/>
-                    <h:outputText value="#{transactionController.selected.droppedLat}" title="#{bundle.ViewTransactionTitle_droppedLat}"/>
-                    <h:outputText value="#{bundle.ViewTransactionLabel_droppedLng}"/>
-                    <h:outputText value="#{transactionController.selected.droppedLng}" title="#{bundle.ViewTransactionTitle_droppedLng}"/>
-                    <h:outputText value="#{bundle.ViewTransactionLabel_passengerId}"/>
-                    <h:outputText value="#{transactionController.selected.passengerId}" title="#{bundle.ViewTransactionTitle_passengerId}"/>
+                    <h:outputText value="#{bundle.ViewTransactionLabel_completedLat}"/>
+                    <h:outputText value="#{transactionController.selected.completedLat}" title="#{bundle.ViewTransactionTitle_completedLat}"/>
+                    <h:outputText value="#{bundle.ViewTransactionLabel_completedLng}"/>
+                    <h:outputText value="#{transactionController.selected.completedLng}" title="#{bundle.ViewTransactionTitle_completedLng}"/>
+                    <h:outputText value="#{bundle.ViewTransactionLabel_pendingDt}"/>
+                    <h:outputText value="#{transactionController.selected.pendingDt}" title="#{bundle.ViewTransactionTitle_pendingDt}">
+                        <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                    </h:outputText>
                     <h:outputText value="#{bundle.ViewTransactionLabel_driverId}"/>
                     <h:outputText value="#{transactionController.selected.driverId}" title="#{bundle.ViewTransactionTitle_driverId}"/>
+                    <h:outputText value="#{bundle.ViewTransactionLabel_passengerId}"/>
+                    <h:outputText value="#{transactionController.selected.passengerId}" title="#{bundle.ViewTransactionTitle_passengerId}"/>
                 </h:panelGrid>
                 <br />
                 <h:commandLink action="#{transactionController.destroyAndView}" value="#{bundle.ViewTransactionDestroyLink}"/>

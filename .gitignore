@@ -45,3 +45,4 @@ app/app.iml
 local.properties
 /CarpoolServer/dist/
 local.properties
+/CarpoolServer/nbproject/private/

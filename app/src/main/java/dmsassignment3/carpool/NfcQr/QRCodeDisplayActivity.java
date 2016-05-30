@@ -29,7 +29,7 @@ public class QRCodeDisplayActivity extends AppCompatActivity {
         ImageView imageView = (ImageView) findViewById(R.id.qrCode);
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String qrData = prefs.getString("example_text", "N/A");
+        String qrData = prefs.getString("username", "N/A");
         int qrCodeDimention = 500;
 
         QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrData, null,

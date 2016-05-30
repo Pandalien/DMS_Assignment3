@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import dmsassignment3.carpool.NfcQr.QRCodeDisplayActivity;
 import dmsassignment3.carpool.NfcQr.WriteNfcTag;
 
 /**
@@ -197,7 +198,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"));
+            bindPreferenceSummaryToValue(findPreference("username"));
             bindPreferenceSummaryToValue(findPreference("example_list"));
         }
 
@@ -287,6 +288,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public void createNfcNameTag(View view){
         Intent intent = new Intent(this, WriteNfcTag.class);
+        startActivity(intent);
+    }
+
+    public void onCreateQr(View view){
+        Intent intent = new Intent(this, QRCodeDisplayActivity.class);
         startActivity(intent);
     }
 }

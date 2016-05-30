@@ -63,7 +63,7 @@ public class TransactionServlet extends HttpServlet {
 //            msg += " " + user.getTransactionCollection();
 //        }
 //        
-//        sendMessage(request, response, msg);
+//        sendMessage(request, response, "Hello World");
     }
     
     protected void sendMessage(HttpServletRequest req, HttpServletResponse resp, String msg) {

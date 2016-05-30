@@ -12,7 +12,7 @@ import models.Transaction;
 
 /**
  *
- * @author Administrator
+ * @author andyc
  */
 @Stateless
 public class TransactionFacade extends AbstractFacade<Transaction> {

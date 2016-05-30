@@ -28,12 +28,6 @@
                         </h:column>
                         <h:column>
                             <f:facet name="header">
-                                <h:outputText value="#{bundle.ListTransactionTitle_status}"/>
-                            </f:facet>
-                            <h:outputText value="#{item.status}"/>
-                        </h:column>
-                        <h:column>
-                            <f:facet name="header">
                                 <h:outputText value="#{bundle.ListTransactionTitle_collectedDt}"/>
                             </f:facet>
                             <h:outputText value="#{item.collectedDt}">
@@ -54,35 +48,49 @@
                         </h:column>
                         <h:column>
                             <f:facet name="header">
-                                <h:outputText value="#{bundle.ListTransactionTitle_droppedDt}"/>
+                                <h:outputText value="#{bundle.ListTransactionTitle_status}"/>
                             </f:facet>
-                            <h:outputText value="#{item.droppedDt}">
+                            <h:outputText value="#{item.status}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListTransactionTitle_completedDt}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.completedDt}">
                                 <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
                             </h:outputText>
                         </h:column>
                         <h:column>
                             <f:facet name="header">
-                                <h:outputText value="#{bundle.ListTransactionTitle_droppedLat}"/>
+                                <h:outputText value="#{bundle.ListTransactionTitle_completedLat}"/>
                             </f:facet>
-                            <h:outputText value="#{item.droppedLat}"/>
+                            <h:outputText value="#{item.completedLat}"/>
                         </h:column>
                         <h:column>
                             <f:facet name="header">
-                                <h:outputText value="#{bundle.ListTransactionTitle_droppedLng}"/>
+                                <h:outputText value="#{bundle.ListTransactionTitle_completedLng}"/>
                             </f:facet>
-                            <h:outputText value="#{item.droppedLng}"/>
+                            <h:outputText value="#{item.completedLng}"/>
                         </h:column>
                         <h:column>
                             <f:facet name="header">
-                                <h:outputText value="#{bundle.ListTransactionTitle_passengerId}"/>
+                                <h:outputText value="#{bundle.ListTransactionTitle_pendingDt}"/>
                             </f:facet>
-                            <h:outputText value="#{item.passengerId}"/>
+                            <h:outputText value="#{item.pendingDt}">
+                                <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                            </h:outputText>
                         </h:column>
                         <h:column>
                             <f:facet name="header">
                                 <h:outputText value="#{bundle.ListTransactionTitle_driverId}"/>
                             </f:facet>
                             <h:outputText value="#{item.driverId}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListTransactionTitle_passengerId}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.passengerId}"/>
                         </h:column>
                         <h:column>
                             <f:facet name="header">

@@ -33,7 +33,7 @@
                     <td><%= item.getDriverId().getUsername()%></td>
                     <td><%= item.getPassengerId().getUsername()%></td>
                     <td><%= item.getCollectedDt()%></td>
-                    <td><%= item.getDroppedDt()%></td>
+                    <td><%= item.getCompletedDt()%></td>
                 </tr>
             <%}%>
         </table>

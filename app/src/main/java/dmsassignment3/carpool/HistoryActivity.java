@@ -75,7 +75,7 @@ public class HistoryActivity extends AppCompatActivity {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             String http_server = prefs.getString("http_server", "Local").toLowerCase() + "_addr";
             String hostport = prefs.getString(http_server, "localhost:8080");
-            url = new URL("http://" + hostport + "/CarpoolServer/faces/transaction/List.xhtml");
+            url = new URL("http://" + hostport + "/CarpoolServer/TransactionServlet");
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }

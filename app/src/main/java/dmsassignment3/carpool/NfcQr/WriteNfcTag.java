@@ -3,12 +3,14 @@ package dmsassignment3.carpool.NfcQr;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -29,8 +31,11 @@ public class WriteNfcTag extends AppCompatActivity implements View.OnClickListen
     private NfcAdapter nfcAdapter;
     private boolean writeModeEnabled;
     private Button writeButton;
-    private EditText textField;
+    private TextView tvNfc;
     private TextView statusView;
+    private final String minetype = "application/aut.dms.carpooler";
+    String name;
+    String pass;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,16 +43,20 @@ public class WriteNfcTag extends AppCompatActivity implements View.OnClickListen
         setContentView(R.layout.activity_write_nfc_tag);
         setupActionBar();
 
-        //
-        //ImageView iv = (ImageView)findViewById(R.id.imageViewNfc);
-        //iv.setImageResource(R.drawable.nfc);
-
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        writeButton = (Button)findViewById(R.id.button1);
+
+        writeButton = (Button)findViewById(R.id.NfcBtn);
         writeButton.setOnClickListener(this);
-        textField = (EditText) findViewById(R.id.editText1);
+
+        tvNfc = (TextView) findViewById(R.id.tvNfcName);
         statusView = (TextView)findViewById(R.id.textView1);
         writeModeEnabled = false;
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        name = prefs.getString("username", "");
+        pass = prefs.getString("userpass", "");
+
+        tvNfc.setText(name);
     }
 
     private void setupActionBar() {
@@ -90,16 +99,16 @@ public class WriteNfcTag extends AppCompatActivity implements View.OnClickListen
     @Override
     public void onClick(View arg0) {
 
-        statusView.setText("WRITE MODE ENABLED, HOLD PHONE TO TAG");
+        statusView.setText("Ready to write.");
         enableWriteMode();
     }
 
     private boolean writeTag(Tag tag) {
 
         // record that contains our custom data from textfield, using custom MIME_TYPE
-        String textToSend = textField.getText().toString();
+        String textToSend = name;
         byte[] payload = textToSend.getBytes();
-        byte[] mimeBytes = "application/aut.seth".getBytes(Charset.forName("US-ASCII"));
+        byte[] mimeBytes = minetype.getBytes(Charset.forName("US-ASCII"));
         NdefRecord record = new NdefRecord(NdefRecord.TNF_MIME_MEDIA, mimeBytes,
                 new byte[0], payload);
         NdefMessage message = new NdefMessage(new NdefRecord[] { record});

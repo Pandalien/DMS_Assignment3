@@ -17,8 +17,6 @@
                 <h:panelGrid columns="2">
                     <h:outputLabel value="#{bundle.EditTransactionLabel_transactionId}" for="transactionId" />
                     <h:inputText id="transactionId" value="#{transactionController.selected.transactionId}" title="#{bundle.EditTransactionTitle_transactionId}" required="true" requiredMessage="#{bundle.EditTransactionRequiredMessage_transactionId}"/>
-                    <h:outputLabel value="#{bundle.EditTransactionLabel_status}" for="status" />
-                    <h:inputText id="status" value="#{transactionController.selected.status}" title="#{bundle.EditTransactionTitle_status}" required="true" requiredMessage="#{bundle.EditTransactionRequiredMessage_status}"/>
                     <h:outputLabel value="#{bundle.EditTransactionLabel_collectedDt}" for="collectedDt" />
                     <h:inputText id="collectedDt" value="#{transactionController.selected.collectedDt}" title="#{bundle.EditTransactionTitle_collectedDt}" >
                         <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
@@ -27,20 +25,26 @@
                     <h:inputText id="collectedLat" value="#{transactionController.selected.collectedLat}" title="#{bundle.EditTransactionTitle_collectedLat}" />
                     <h:outputLabel value="#{bundle.EditTransactionLabel_collectedLng}" for="collectedLng" />
                     <h:inputText id="collectedLng" value="#{transactionController.selected.collectedLng}" title="#{bundle.EditTransactionTitle_collectedLng}" />
-                    <h:outputLabel value="#{bundle.EditTransactionLabel_droppedDt}" for="droppedDt" />
-                    <h:inputText id="droppedDt" value="#{transactionController.selected.droppedDt}" title="#{bundle.EditTransactionTitle_droppedDt}" >
+                    <h:outputLabel value="#{bundle.EditTransactionLabel_status}" for="status" />
+                    <h:inputText id="status" value="#{transactionController.selected.status}" title="#{bundle.EditTransactionTitle_status}" />
+                    <h:outputLabel value="#{bundle.EditTransactionLabel_completedDt}" for="completedDt" />
+                    <h:inputText id="completedDt" value="#{transactionController.selected.completedDt}" title="#{bundle.EditTransactionTitle_completedDt}" >
                         <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
                     </h:inputText>
-                    <h:outputLabel value="#{bundle.EditTransactionLabel_droppedLat}" for="droppedLat" />
-                    <h:inputText id="droppedLat" value="#{transactionController.selected.droppedLat}" title="#{bundle.EditTransactionTitle_droppedLat}" />
-                    <h:outputLabel value="#{bundle.EditTransactionLabel_droppedLng}" for="droppedLng" />
-                    <h:inputText id="droppedLng" value="#{transactionController.selected.droppedLng}" title="#{bundle.EditTransactionTitle_droppedLng}" />
-                    <h:outputLabel value="#{bundle.EditTransactionLabel_passengerId}" for="passengerId" />
-                    <h:selectOneMenu id="passengerId" value="#{transactionController.selected.passengerId}" title="#{bundle.EditTransactionTitle_passengerId}" required="true" requiredMessage="#{bundle.EditTransactionRequiredMessage_passengerId}">
-                        <f:selectItems value="#{userController.itemsAvailableSelectOne}"/>
-                    </h:selectOneMenu>
+                    <h:outputLabel value="#{bundle.EditTransactionLabel_completedLat}" for="completedLat" />
+                    <h:inputText id="completedLat" value="#{transactionController.selected.completedLat}" title="#{bundle.EditTransactionTitle_completedLat}" />
+                    <h:outputLabel value="#{bundle.EditTransactionLabel_completedLng}" for="completedLng" />
+                    <h:inputText id="completedLng" value="#{transactionController.selected.completedLng}" title="#{bundle.EditTransactionTitle_completedLng}" />
+                    <h:outputLabel value="#{bundle.EditTransactionLabel_pendingDt}" for="pendingDt" />
+                    <h:inputText id="pendingDt" value="#{transactionController.selected.pendingDt}" title="#{bundle.EditTransactionTitle_pendingDt}" >
+                        <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                    </h:inputText>
                     <h:outputLabel value="#{bundle.EditTransactionLabel_driverId}" for="driverId" />
                     <h:selectOneMenu id="driverId" value="#{transactionController.selected.driverId}" title="#{bundle.EditTransactionTitle_driverId}" required="true" requiredMessage="#{bundle.EditTransactionRequiredMessage_driverId}">
+                        <f:selectItems value="#{userController.itemsAvailableSelectOne}"/>
+                    </h:selectOneMenu>
+                    <h:outputLabel value="#{bundle.EditTransactionLabel_passengerId}" for="passengerId" />
+                    <h:selectOneMenu id="passengerId" value="#{transactionController.selected.passengerId}" title="#{bundle.EditTransactionTitle_passengerId}" required="true" requiredMessage="#{bundle.EditTransactionRequiredMessage_passengerId}">
                         <f:selectItems value="#{userController.itemsAvailableSelectOne}"/>
                     </h:selectOneMenu>
                 </h:panelGrid>

@@ -17,26 +17,24 @@
                 <h:panelGrid columns="2">
                     <h:outputText value="#{bundle.ViewUserLabel_userId}"/>
                     <h:outputText value="#{userController.selected.userId}" title="#{bundle.ViewUserTitle_userId}"/>
-                    <h:outputText value="#{bundle.ViewUserLabel_username}"/>
-                    <h:outputText value="#{userController.selected.username}" title="#{bundle.ViewUserTitle_username}"/>
-                    <h:outputText value="#{bundle.ViewUserLabel_password}"/>
-                    <h:outputText value="#{userController.selected.password}" title="#{bundle.ViewUserTitle_password}"/>
-                    <h:outputText value="#{bundle.ViewUserLabel_points}"/>
-                    <h:outputText value="#{userController.selected.points}" title="#{bundle.ViewUserTitle_points}"/>
-                    <h:outputText value="#{bundle.ViewUserLabel_status}"/>
-                    <h:outputText value="#{userController.selected.status}" title="#{bundle.ViewUserTitle_status}"/>
                     <h:outputText value="#{bundle.ViewUserLabel_lat}"/>
                     <h:outputText value="#{userController.selected.lat}" title="#{bundle.ViewUserTitle_lat}"/>
                     <h:outputText value="#{bundle.ViewUserLabel_lng}"/>
                     <h:outputText value="#{userController.selected.lng}" title="#{bundle.ViewUserTitle_lng}"/>
+                    <h:outputText value="#{bundle.ViewUserLabel_points}"/>
+                    <h:outputText value="#{userController.selected.points}" title="#{bundle.ViewUserTitle_points}"/>
+                    <h:outputText value="#{bundle.ViewUserLabel_proximity}"/>
+                    <h:outputText value="#{userController.selected.proximity}" title="#{bundle.ViewUserTitle_proximity}"/>
                     <h:outputText value="#{bundle.ViewUserLabel_destLat}"/>
                     <h:outputText value="#{userController.selected.destLat}" title="#{bundle.ViewUserTitle_destLat}"/>
                     <h:outputText value="#{bundle.ViewUserLabel_destLng}"/>
                     <h:outputText value="#{userController.selected.destLng}" title="#{bundle.ViewUserTitle_destLng}"/>
-                    <h:outputText value="#{bundle.ViewUserLabel_proximity}"/>
-                    <h:outputText value="#{userController.selected.proximity}" title="#{bundle.ViewUserTitle_proximity}"/>
-                    
-                    <h:outputText value="#{userController.selected.transactionCollection}" title="#{bundle.ViewUserTitle_proximity}"/>
+                    <h:outputText value="#{bundle.ViewUserLabel_username}"/>
+                    <h:outputText value="#{userController.selected.username}" title="#{bundle.ViewUserTitle_username}"/>
+                    <h:outputText value="#{bundle.ViewUserLabel_password}"/>
+                    <h:outputText value="#{userController.selected.password}" title="#{bundle.ViewUserTitle_password}"/>
+                    <h:outputText value="#{bundle.ViewUserLabel_status}"/>
+                    <h:outputText value="#{userController.selected.status}" title="#{bundle.ViewUserTitle_status}"/>
                 </h:panelGrid>
                 <br />
                 <h:commandLink action="#{userController.destroyAndView}" value="#{bundle.ViewUserDestroyLink}"/>
