@@ -101,7 +101,6 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
           + ",dest_lat   double" 
           + ",dest_lng   double"  
           + ",proximity  double"
-          + ",transaction_id int default 0" // only used for a passengers
           + ",primary key (user_id)"
           + ");";
       statement.executeUpdate(sql);
@@ -112,7 +111,8 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
           + ",driver_id      int not null"
           + ",passenger_id   int not null"
           + ",status         int not null default 0"    // status: pending, in progress, completed
-          + ",collected_dt   datetime"        
+          + ",pending_dt     datetime default current_timestamp"
+          + ",collected_dt   datetime"  
           + ",collected_lat  double"
           + ",collected_lng  double"              
           + ",completed_dt   datetime"
@@ -464,6 +464,43 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
     }
   } // updateTransactionId
   
+  
+  public JSONObject findPendingTransactionInfo(int passenger_id) {
+    int transaction_id = 0;
+    int driver_id = 0;
+    
+    // get most recent pending transaction for this passenger
+    try {
+      PreparedStatement preparedStatement;
+      String query = "select transaction_id"
+                   + " from " + dbName + "." + transactionTableName 
+                   + " where status = ?"
+                   + " and passenger_id = ?;";      
+      preparedStatement = connection.prepareStatement(query);
+      preparedStatement.setInt(1, User.PASSENGER_PENDING);
+      preparedStatement.setInt(2, passenger_id);      
+      ResultSet resultSet = preparedStatement.executeQuery();
+      if (resultSet.next()) {
+        transaction_id = resultSet.getInt("transaction_id");        
+        driver_id = resultSet.getInt("driver_id");
+      }
+    }
+    catch (Exception e) {
+      System.err.println(e.getMessage());                  
+    }
+    
+    // second, send back the json object
+    JSONObject jsonTransaction = new JSONObject();
+    try {
+      jsonTransaction.put("transaction_id", transaction_id);
+      jsonTransaction.put("driver_id", driver_id);
+    }
+    catch (Exception e) {
+      System.err.println(e.getMessage());
+    }
+    
+    return jsonTransaction;    
+  } // findPendingTransactionInfo
 
 
   public int getDriverId(int transaction_id) {

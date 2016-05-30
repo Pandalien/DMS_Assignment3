@@ -44,9 +44,10 @@ public class LocationActivity extends AppCompatActivity implements
 
     User user; // the current user of this app
 
-    // the driver field is only valid for a passenger
+    // following two fields valid for Passengers only:
     // (One driver can have many passengers, but a passenger can have only one driver).
-    User driver;
+    int transaction_id;
+    int driver_id;
 
 
     // map
@@ -128,7 +129,8 @@ public class LocationActivity extends AppCompatActivity implements
 
 
         user = new User();
-        driver = null;
+        transaction_id = 0;
+        driver_id = 0;
 
 
         youMarker = null;
@@ -699,9 +701,12 @@ public class LocationActivity extends AppCompatActivity implements
     private class LocationUpdateComm extends HttpJsonCommunicator {
 
         protected void ok(JSONObject response) {
-            if (response.has("driver"))
+            // these fields are returned to passenger in case of a valid transaction
+            if (response.has("transaction"))
                 try {
-                    driver = new User(response.optJSONObject("driver"));
+                    JSONObject jsonTransaction = response.getJSONObject("transaction");
+                    transaction_id = jsonTransaction.optInt("transaction_id", 0);
+                    driver_id = jsonTransaction.optInt("driver_id", 0);
                 }
                 catch (Exception e) {
                     System.err.println(e);

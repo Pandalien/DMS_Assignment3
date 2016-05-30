@@ -122,12 +122,6 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Submit"
-            android:id="@+id/submitButton"/>
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:text="End Trip"
             android:id="@+id/endButton"
             android:layout_gravity="center_horizontal"

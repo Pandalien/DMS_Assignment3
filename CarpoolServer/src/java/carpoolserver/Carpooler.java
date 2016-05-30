@@ -91,6 +91,8 @@ public class Carpooler extends HttpServlet {
       User user = null;      
 //        user = (User)session.getAttribute("user");
 
+      // only the user_id is stored as the session attribute 
+      // (this value is fixed to the user and does not change during the session)
       Integer user_id_object = (Integer)session.getAttribute("user_id");
       if (user_id_object != null) {
         user_id = user_id_object.intValue();
@@ -172,9 +174,7 @@ public class Carpooler extends HttpServlet {
           try {
             // this is a continous update, because the other party may cancel the transaction
             if (user.getStatus() == User.PASSENGER_PENDING) {
-              int driver_id = carpoolerEJB.getDriverId(user.getTransactionId());
-              User driver = carpoolerEJB.getUser(driver_id);
-              jsonResponse.put("driver", driver.toJSONObject());              
+              jsonResponse.put("transaction", carpoolerEJB.findPendingTransactionInfo(user_id));
             }
             jsonResponse.put("userlist", carpoolerEJB.getUserList(user));
           }
