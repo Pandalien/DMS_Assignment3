@@ -288,12 +288,12 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
         // passengers requesting a lift:        
         query = "select *"
               + " from " + dbName + "." + userTableName 
-              + " where u.user_id != ?"
-              + " and u.status = ?;";
+              + " where user_id != ?"
+              + " and status = ?;";
         preparedStatement = connection.prepareStatement(query);
         preparedStatement.setInt(1, forUser.getUserID());
         preparedStatement.setInt(2, User.PASSENGER);                           
-                
+/*                
         // passengers in an active transaction with this driver:      
         query = "select passenger_id"
               + " from " + dbName + "." + transactionTableName 
@@ -303,7 +303,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
         preparedStatement.setInt(1, User.PASSENGER_PENDING);        
         preparedStatement.setInt(2, User.PASSENGER_COLLECTED);  
         preparedStatement.setInt(3, forUser.getUserID());        
-       
+*/       
       }
       else if (forUser.getStatus() == User.PASSENGER) {
         query = "select * from " + dbName + "." + userTableName
@@ -348,7 +348,6 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
                    + "    ,dest_lat = ?"
                    + "    ,dest_lng = ?"
                    + "    ,proximity = ?"
-                   + "    ,transaction_id = ?"
                    + " where user_id = ?;";      
       preparedStatement = connection.prepareStatement(query);
       preparedStatement.setInt(1, user.getPoints());      
@@ -357,13 +356,12 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       preparedStatement.setDouble(4, user.getLng());      
       preparedStatement.setDouble(5, user.getDestLat());
       preparedStatement.setDouble(6, user.getDestLng());      
-      preparedStatement.setDouble(7, user.getProximity());      
-      preparedStatement.setInt(8, user.getTransactionId());            
-      preparedStatement.setInt(9, user.getUserID());      
+      preparedStatement.setDouble(7, user.getProximity());                 
+      preparedStatement.setInt(8, user.getUserID());      
       preparedStatement.executeUpdate();
     }
     catch (Exception e) {
-      System.err.println(e.getMessage());                  
+      System.err.println(e);                  
     }
   } // updateFromUser
 
@@ -388,7 +386,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
     try {
       PreparedStatement preparedStatement;
       String query = "update " + dbName + "." + userTableName 
-                   + " set lat = ?,lng = ?"
+                   + " set lat = ?, lng = ?"
                    + " where user_id = ?;";      
       preparedStatement = connection.prepareStatement(query);
       preparedStatement.setDouble(1, lat);      

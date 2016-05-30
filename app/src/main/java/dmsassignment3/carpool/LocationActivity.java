@@ -169,7 +169,7 @@ public class LocationActivity extends AppCompatActivity implements
 
         // must be called last, at the end of the constructor
         updateControls();
-        copyUsernameToSharedPrefs();
+        copyUserpassToSharedPrefs();
     } // onCreate
 
     @Override
@@ -531,7 +531,7 @@ public class LocationActivity extends AppCompatActivity implements
             writeJSONObject(out, userpass);
             out.close();
 
-            copyUsernameToSharedPrefs();
+            copyUserpassToSharedPrefs();
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -547,15 +547,18 @@ public class LocationActivity extends AppCompatActivity implements
     } // askUserPass
 
 
-    public void copyUsernameToSharedPrefs() {
+    public void copyUserpassToSharedPrefs() {
         String username = "";
+        String password = "";
         JSONObject userpass = getUserPass();
-        if (userpass != null)
-          username = userpass.optString("username");
+        if (userpass != null) {
+            username = userpass.optString("username");
+            password = userpass.optString("password");
+        }
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.edit().putString("username", username);
-    } // copyUsernameToSharedPrefs
-
+        prefs.edit().putString("userpass", password);
+    } // copyUserpassToSharedPrefs
 
 
     @Override
