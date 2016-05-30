@@ -43,7 +43,7 @@ public interface CarpoolerEJBInterface {
   public void updateTransactionId(int user_id, int transaction_id);  
   
   
-  public JSONObject findPendingTransactionInfo(int passenger_id);
+  public JSONObject findTransactionInfo(int status, int passenger_id);
 
 
   public int getDriverId(int transaction_id);

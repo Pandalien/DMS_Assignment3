@@ -162,7 +162,7 @@ public class LocationActivity extends AppCompatActivity implements
         userListView = (ListView) findViewById(R.id.userListView);
         userList = new ArrayList<User>();
         userListAdapter = new UserArrayAdapter(this, R.layout.user_list_view_item_layout, userList);
-//        userListAdapter.setActionButtonListener(this);
+        userListAdapter.setActionButtonListener(this);
         userListView.setAdapter(userListAdapter);
         userListView.setOnItemClickListener(this);
 

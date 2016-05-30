@@ -284,7 +284,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       PreparedStatement preparedStatement = null;
       String query = "";
       if (forUser.getStatus() == User.DRIVER) {
-        
+/*        
         // passengers requesting a lift:        
         query = "select *"
               + " from " + dbName + "." + userTableName 
@@ -293,7 +293,8 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
         preparedStatement = connection.prepareStatement(query);
         preparedStatement.setInt(1, forUser.getUserID());
         preparedStatement.setInt(2, User.PASSENGER);                           
-/*                
+*/                
+/*        
         // passengers in an active transaction with this driver:      
         query = "select passenger_id"
               + " from " + dbName + "." + transactionTableName 
@@ -303,7 +304,26 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
         preparedStatement.setInt(1, User.PASSENGER_PENDING);        
         preparedStatement.setInt(2, User.PASSENGER_COLLECTED);  
         preparedStatement.setInt(3, forUser.getUserID());        
-*/       
+*/  
+        // passengers requesting a lift:        
+        query = "select *"
+              + " from " + dbName + "." + userTableName 
+              + " where user_id != ?"
+              + " and (status = ?"
+              + "   or user_id in ("
+              + "     select passenger_id"
+              + "     from " + dbName + "." + transactionTableName 
+              + "     where (status = ? or status = ?)"
+              + "     and driver_id = ?"
+              + "  )"
+              + ")";
+        preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setInt(1, forUser.getUserID());
+        preparedStatement.setInt(2, User.PASSENGER);                           
+        preparedStatement.setInt(3, User.PASSENGER_PENDING);        
+        preparedStatement.setInt(4, User.PASSENGER_COLLECTED);  
+        preparedStatement.setInt(5, forUser.getUserID());        
+      
       }
       else if (forUser.getStatus() == User.PASSENGER) {
         query = "select * from " + dbName + "." + userTableName
@@ -467,7 +487,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
   } // updateTransactionId
   
   
-  public JSONObject findPendingTransactionInfo(int passenger_id) {
+  public JSONObject findTransactionInfo(int status, int passenger_id) {
     int transaction_id = 0;
     int driver_id = 0;
     
@@ -477,9 +497,13 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       String query = "select transaction_id"
                    + " from " + dbName + "." + transactionTableName 
                    + " where status = ?"
-                   + " and passenger_id = ?;";      
+                   + " and passenger_id = ?"
+                   + (status == User.PASSENGER_PENDING ? "order by pending_dt"
+                    : status == User.PASSENGER_COLLECTED ? "order by collected_dt"
+                    : status == User.PASSENGER_COMPLETED ? "order by completed_dt"
+                    : ";");      
       preparedStatement = connection.prepareStatement(query);
-      preparedStatement.setInt(1, User.PASSENGER_PENDING);
+      preparedStatement.setInt(1, status);
       preparedStatement.setInt(2, passenger_id);      
       ResultSet resultSet = preparedStatement.executeQuery();
       if (resultSet.next()) {

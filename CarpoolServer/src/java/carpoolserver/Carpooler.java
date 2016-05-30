@@ -173,9 +173,8 @@ public class Carpooler extends HttpServlet {
           // Android device before it transmits a INPROGRESS message.
           try {
             // this is a continous update, because the other party may cancel the transaction
-            if (user.getStatus() == User.PASSENGER_PENDING) {
-              jsonResponse.put("transaction", carpoolerEJB.findPendingTransactionInfo(user_id));
-            }
+            if (user.getStatus() > User.PASSENGER) 
+              jsonResponse.put("transaction", carpoolerEJB.findTransactionInfo(user.getStatus(), user_id)); 
             jsonResponse.put("userlist", carpoolerEJB.getUserList(user));
           }
           catch (Exception e) {
