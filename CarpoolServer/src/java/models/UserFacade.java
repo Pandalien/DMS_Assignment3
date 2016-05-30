@@ -3,10 +3,11 @@
  */
 package models;
 
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import models.User;
+import javax.persistence.Query;
 
 /**
  *
@@ -27,4 +28,17 @@ public class UserFacade extends AbstractFacade<User> {
         super(User.class);
     }
     
+    public User findByUsernameAndPassword(Object username, Object password){
+        Query q = em.createNamedQuery("User.findByUsernameAndPassword");
+        q.setParameter("username", username);
+        q.setParameter("password", password);
+        
+        List<User> users = q.getResultList();
+        
+        if (users != null && users.size() > 0) {
+            return users.get(0);
+        }else{
+            return null;
+        }
+    }
 }
