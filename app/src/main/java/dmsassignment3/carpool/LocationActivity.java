@@ -33,7 +33,7 @@ import java.util.*;
 
 public class LocationActivity extends AppCompatActivity implements
         ConnectionCallbacks, OnMapReadyCallback, GoogleMap.OnMapClickListener, LocationListener,
-        OnClickListener, AdapterView.OnItemClickListener {
+        OnClickListener, AdapterView.OnItemClickListener, UserArrayAdapter.ActionButtonListener {
 
     public static String USERFILENAME = "User";
     static int REQUEST_CODE_LOGIN_ACTIVITY = 1;
@@ -44,6 +44,11 @@ public class LocationActivity extends AppCompatActivity implements
 
     User user; // the current user of this app
 
+    // the driver field is only valid for a passenger
+    // (One driver can have many passengers, but a passenger can have only one driver).
+    User driver;
+
+
     // map
     GoogleApiClient googleApiClient;
     GoogleMap googleMap;
@@ -51,11 +56,17 @@ public class LocationActivity extends AppCompatActivity implements
     Marker youMarker;
     Marker destMarker;
 
+    // map update flags
+    boolean firstMapUpdate;
+
+
     // UI controls
     ViewGroup startControls;
     ViewGroup liveControls;
 
     // start controls
+    TextView proximityLabelStart;
+    TextView proximityLabelEnd;
     EditText proximityEditText;
     Button beginButton;
     Button cancelButton;
@@ -68,7 +79,7 @@ public class LocationActivity extends AppCompatActivity implements
     // the other users on the system which meet the criteria to show in the list,
     // see CarpoolerEJB.getUserList() on server side.
     List<User> userList;
-    ArrayAdapter<User> listAdapter;
+    UserArrayAdapter userListAdapter;
 
     // maintain the users and markers in lookup tables
     HashMap<String, Marker> userMarkerHashMap;
@@ -94,6 +105,9 @@ public class LocationActivity extends AppCompatActivity implements
         // http://developer.android.com/training/location/receive-location-updates.html
         // https://developers.google.com/maps/documentation/android-api/start#the_maps_activity_java_file
 
+
+        firstMapUpdate = true;
+
         if (googleApiClient == null)
             googleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(LocationServices.API)
@@ -101,15 +115,11 @@ public class LocationActivity extends AppCompatActivity implements
 //                    .addOnConnectionFailedListener(this)
                     .build();
 
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
 
-        locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-//        locationRequest.setInterval(4000);
-        locationRequest.setNumUpdates(1); // initial location refresh
-
+        locationRequest = newLocationRequest(1, 0);
         activity = this;
         postURL = null;
 
@@ -118,12 +128,14 @@ public class LocationActivity extends AppCompatActivity implements
 
 
         user = new User();
+        driver = null;
 
 
         youMarker = null;
         destMarker = null;
 
         cookieJar = new java.net.CookieManager();
+        cookieJar.getCookieStore().removeAll();
 
 
         userMarkerHashMap = new HashMap();
@@ -137,6 +149,8 @@ public class LocationActivity extends AppCompatActivity implements
         cancelButton = (Button) findViewById(R.id.cancelButton);
         endButton = (Button) findViewById(R.id.endButton);
 
+        proximityLabelStart = (TextView) findViewById(R.id.proximityLabelStart);
+        proximityLabelEnd = (TextView) findViewById(R.id.proximityLabelEnd);
         proximityEditText = (EditText) findViewById(R.id.proximityEditText);
 
         beginButton.setOnClickListener(this);
@@ -145,11 +159,13 @@ public class LocationActivity extends AppCompatActivity implements
 
         userListView = (ListView) findViewById(R.id.userListView);
         userList = new ArrayList<User>();
-        listAdapter = new ArrayAdapter<User>(this, android.R.layout.simple_list_item_1, userList);
-        userListView.setAdapter(listAdapter);
+        userListAdapter = new UserArrayAdapter(this, R.layout.user_list_view_item_layout, userList);
+//        userListAdapter.setActionButtonListener(this);
+        userListView.setAdapter(userListAdapter);
         userListView.setOnItemClickListener(this);
 
 
+        // must be called last, at the end of the constructor
         updateControls();
     } // onCreate
 
@@ -192,6 +208,16 @@ public class LocationActivity extends AppCompatActivity implements
 //        if (googleApiClient.isConnected())
     }
 
+    protected LocationRequest newLocationRequest(int numUpdates, long millis) {
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        if (numUpdates > 0)
+            locationRequest.setNumUpdates(numUpdates);
+        else
+            locationRequest.setInterval(millis);
+        return locationRequest;
+    } // newLocationRequest
+
 
     protected void startLocationUpdates() {
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
@@ -217,37 +243,50 @@ public class LocationActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onLocationChanged(Location location) {
+    public void onMapReady(GoogleMap googleMap) {
+        //      if (this.googleMap == null)
+        //          googleMap.addMarker(new MarkerOptions().position(new LatLng(-36.85, 174.76)).title("Auckland"));
+        this.googleMap = googleMap;
         if (googleMap != null) {
-            LatLng moveToLoc = new LatLng(location.getLatitude(), location.getLongitude());
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(moveToLoc, 15);
-            googleMap.moveCamera(cameraUpdate);
+            try {
+                googleMap.setMyLocationEnabled(true);
+            }
+            catch (SecurityException e) {
+                System.err.println(e.getMessage());
+            }
+            googleMap.setOnMapClickListener(this);
+        }
+    } // onMapReady
 
-            if (youMarker != null && isOnline())
-                youMarker.setPosition(moveToLoc);
-            else if (youMarker == null)
+
+    @Override
+    public void onLocationChanged(Location location) {
+        LatLng point = new LatLng(location.getLatitude(), location.getLongitude());
+
+        if (googleMap != null) {
+
+            // only reposition camera depending on flags
+            if (firstMapUpdate) {
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(point, 15);
+                googleMap.moveCamera(cameraUpdate);
+                firstMapUpdate = false;
+            }
+
+            // always update the youMarker
+            if (youMarker != null)
+                youMarker.setPosition(point);
+            else
                 youMarker = googleMap.addMarker(new MarkerOptions()
-                        .position(moveToLoc)
+                        .position(point)
                         .title("You are here")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
         }
 
         if (isOnline()) {
             // send updated location coords to carpool server
-            locationUpdate(location.getLatitude(), location.getLongitude());
+            locationUpdate(point.latitude, point.longitude);
         }
     } // onLocationChanged
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        //      if (this.googleMap == null)
-        //          googleMap.addMarker(new MarkerOptions().position(new LatLng(-36.85, 174.76)).title("Auckland"));
-        this.googleMap = googleMap;
-        if (googleMap != null) {
-            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-            googleMap.setOnMapClickListener(this);
-        }
-    } // onMapReady
 
 
     @Override
@@ -292,16 +331,45 @@ public class LocationActivity extends AppCompatActivity implements
     } // onItemClick
 
 
+    @Override
+    public void onActionButtonClick(int position, User user) {
+        userList.remove(position);
+        // Driver clicked Collect
+        if (user.getStatus() == User.PASSENGER) {
+            transactionPending(user.getUserID());
+        }
+        // Driver clicked Cancel
+        else if (user.getStatus() == User.PASSENGER_PENDING) {
+            transactionCancelled(user.getTransactionId());
+        }
+        // Driver clicked End
+        else if (user.getStatus() == User.PASSENGER_COLLECTED)
+            transactionCompleted(user.getTransactionId(), youMarker.getPosition().latitude, youMarker.getPosition().longitude);
+        userList.add(position, user);
+        userListAdapter.notifyDataSetChanged();
+    } // onActionButtonClick
+
+
     public void updateControls() {
         beginButton.setEnabled(destMarker != null);
         startControls.setVisibility(isOnline() ? View.GONE : View.VISIBLE);
         liveControls.setVisibility(isOnline() ? View.VISIBLE : View.GONE);
+
+        if (usertype == User.DRIVER) {
+            proximityLabelStart.setText(R.string.proximity_label_for_driver_start);
+            proximityLabelEnd.setText(R.string.proximity_label_for_driver_end);
+        }
+        else if (usertype == User.PASSENGER) {
+            proximityLabelStart.setText(R.string.proximity_label_for_passenger_start);
+            proximityLabelEnd.setText(R.string.proximity_label_for_passenger_end);
+        }
     } // updateControls
 
 
     public boolean isOnline() {
         return user.isDriver() || user.isPassenger();
     }
+
 
     // called when user has successfully logged in to the server
     public void loggedIn() {
@@ -311,7 +379,7 @@ public class LocationActivity extends AppCompatActivity implements
         String refreshStr = prefs.getString("location_refresh_interval", "4000");
 
         stopLocationUpdates();
-        locationRequest.setInterval(Integer.parseInt(refreshStr));
+        locationRequest = newLocationRequest(0, Integer.parseInt(refreshStr));
         startLocationUpdates();
 
         user.setStatus(usertype);
@@ -331,45 +399,47 @@ public class LocationActivity extends AppCompatActivity implements
 
         // create new user hash map from the list
         userHashMap.clear();
-        Iterator<String> keys = jsonUserList.keys();
-        while (keys.hasNext())
-            try {
-                String key = keys.next();
-                User user = new User(jsonUserList.getJSONObject(key));
-                userHashMap.put(key, user);
-            }
-            catch (Exception e) {
-                System.err.println(e.getMessage());
-            }
 
-        // remove old users from userMarkerHashMap and also the google map
-        for (String key: userMarkerHashMap.keySet())
-            if (userHashMap.get(key) == null) {
+        if (jsonUserList != null) {
+            Iterator<String> keys = jsonUserList.keys();
+            while (keys.hasNext())
+                try {
+                    String key = keys.next();
+                    User user = new User(jsonUserList.getJSONObject(key));
+                    userHashMap.put(key, user);
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+
+            // remove old users from userMarkerHashMap and also the google map
+            for (String key : userMarkerHashMap.keySet())
+                if (userHashMap.get(key) == null) {
+                    Marker marker = userMarkerHashMap.get(key);
+                    marker.remove();
+                    userMarkerHashMap.remove(key);
+                }
+
+            // update or add new markers as required to match userHashMap
+            for (User user : userHashMap.values()) {
+                String key = user.getUsername();
+                LatLng point = new LatLng(user.getLat(), user.getLng());
                 Marker marker = userMarkerHashMap.get(key);
-                marker.remove();
-                userMarkerHashMap.remove(key);
-            }
-
-        // update or add new markers as required to match userHashMap
-        for (User user: userHashMap.values()) {
-            String key = user.getUsername();
-            LatLng point = new LatLng(user.getLat(), user.getLng());
-            Marker marker = userMarkerHashMap.get(key);
-            if (marker != null)
-                marker.setPosition(point);
-            else {
-                marker = googleMap.addMarker(new MarkerOptions()
-                        .position(point)
-                        .title(key)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
-                userMarkerHashMap.put(key, marker);
+                if (marker != null)
+                    marker.setPosition(point);
+                else {
+                    marker = googleMap.addMarker(new MarkerOptions()
+                            .position(point)
+                            .title(key)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                    userMarkerHashMap.put(key, marker);
+                }
             }
         }
 
         // finally, update the UI
         userList.clear();
         userList.addAll(userHashMap.values());
-        listAdapter.notifyDataSetChanged();
+        userListAdapter.notifyDataSetChanged();
     } // updateUserList
 
 
@@ -604,11 +674,12 @@ public class LocationActivity extends AppCompatActivity implements
             // should probably log the error here
         }
 
-    } // LocationUpdateComm
+    } // LogoutComm
 
 
 
     // ------ HTTP command: Update Location ------
+    // sends location and receives back other information tailored for the user
 
 
     protected void locationUpdate(double lat, double lng) {
@@ -628,6 +699,52 @@ public class LocationActivity extends AppCompatActivity implements
     private class LocationUpdateComm extends HttpJsonCommunicator {
 
         protected void ok(JSONObject response) {
+            if (response.has("driver"))
+                try {
+                    driver = new User(response.optJSONObject("driver"));
+                }
+                catch (Exception e) {
+                    System.err.println(e);
+                }
+
+            if (response.has("userlist"))
+                try {
+                    updateUserList(response.getJSONObject("userlist"));
+                }
+                catch (Exception e) {
+                    System.err.println(e);
+                }
+        }
+
+        protected void error(String result, JSONObject response) {
+            if (result != null && result.length() > 0)
+                Toast.makeText(activity, result, Toast.LENGTH_LONG).show();
+        }
+
+    } // LocationUpdateComm
+
+
+
+    // ------ HTTP command: Pending ------
+    // Sent by Driver's phone
+
+
+    protected void transactionPending(int passenger_id) {
+        JSONObject cmd = new JSONObject();
+        try {
+            cmd.put("function", "pending");
+            cmd.put("passenger_id", passenger_id);
+            executeComm(cmd, new TransactionPendingComm());
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    } // transactionPending
+
+
+    private class TransactionPendingComm extends HttpJsonCommunicator {
+
+        protected void ok(JSONObject response) {
             if (response.has("userlist"))
                 try {
                     updateUserList(response.getJSONObject("userlist"));
@@ -638,11 +755,140 @@ public class LocationActivity extends AppCompatActivity implements
         }
 
         protected void error(String result, JSONObject response) {
-            // should probably log the error here
+            if (result != null && result.length() > 0)
+                Toast.makeText(activity, result, Toast.LENGTH_LONG).show();
         }
 
-    } // LocationUpdateComm
+    } // TransactionPendingComm
 
+
+
+    // ------ HTTP command: Cancelled ------
+
+
+    protected void transactionCancelled(int transaction_id) {
+        JSONObject cmd = new JSONObject();
+        try {
+            cmd.put("function", "cancelled");
+            cmd.put("transaction_id", transaction_id);
+            executeComm(cmd, new TransactionCancelledComm());
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    } // transactionCancelled
+
+
+    private class TransactionCancelledComm extends HttpJsonCommunicator {
+
+        protected void ok(JSONObject response) {
+            if (response.has("userlist"))
+                try {
+                    updateUserList(response.getJSONObject("userlist"));
+                }
+                catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+        }
+
+        protected void error(String result, JSONObject response) {
+            if (result != null && result.length() > 0)
+                Toast.makeText(activity, result, Toast.LENGTH_LONG).show();
+        }
+
+    } // TransactionCancelledComm
+
+
+
+    // ------ HTTP command: In Progress ------
+    // Sent by passenger's phone.
+    // The NFC/QR match is verified by the phone, if successful then sends this message:
+
+
+    protected void transactionInProgress(int transaction_id, double lat, double lng) {
+        JSONObject cmd = new JSONObject();
+        try {
+            cmd.put("function", "command");
+            cmd.put("transaction_id", transaction_id);
+            cmd.put("lat", lat);
+            cmd.put("lng", lng);
+            executeComm(cmd, new TransactionInProgressComm());
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    } // transactionInProgress
+
+
+    private class TransactionInProgressComm extends HttpJsonCommunicator {
+
+        protected void ok(JSONObject response) {}
+
+        protected void error(String result, JSONObject response) {
+            if (result != null && result.length() > 0)
+                Toast.makeText(activity, result, Toast.LENGTH_LONG).show();
+        }
+
+    } // TransactionInProgressComm
+
+
+
+    // ------ HTTP command: Completed ------
+    // Sent by passenger's phone also.
+    // Can be done by NFC/QR scan also ("tag off"), but could also be a button.
+
+
+    protected void transactionCompleted(int transaction_id, double lat, double lng) {
+        JSONObject cmd = new JSONObject();
+        try {
+            cmd.put("function", "command");
+            cmd.put("transaction_id", transaction_id);
+            cmd.put("lat", lat);
+            cmd.put("lng", lng);
+            executeComm(cmd, new TransactionCompleted());
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    } // transactionCompleted
+
+
+    private class TransactionCompleted extends HttpJsonCommunicator {
+
+        protected void ok(JSONObject response) {}
+
+        protected void error(String result, JSONObject response) {
+            if (result != null && result.length() > 0)
+                Toast.makeText(activity, result, Toast.LENGTH_LONG).show();
+        }
+
+    } // TransactionCompleted
+
+
+/*
+    // ------ HTTP command: Template ------
+
+
+    protected void command() {
+        JSONObject cmd = new JSONObject();
+        try {
+            cmd.put("function", "command");
+            executeComm(cmd, new HTTPComm());
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    } // command
+
+
+    private class HTTPComm extends HttpJsonCommunicator {
+
+        protected void ok(JSONObject response) {}
+
+        protected void error(String result, JSONObject response) {}
+
+    } // HTTPComm
+*/
 
 
     // --- HTTP base routines ---
@@ -786,7 +1032,7 @@ public class LocationActivity extends AppCompatActivity implements
                 } else
                     Toast.makeText(activity, response.toString(), Toast.LENGTH_LONG).show();
             } catch (Exception e) {
-                Toast.makeText(activity, "onPostExecute Exception: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(activity, "onPostExecute Exception: " + e.toString(), Toast.LENGTH_LONG).show();
             }
         } // onPostExecute
 

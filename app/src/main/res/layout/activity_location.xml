@@ -23,13 +23,13 @@
         android:layout_height="match_parent"
         android:layout_weight="0.5"
         android:id="@+id/startControls"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="1. Tap the map to set your destination."
+            android:text="1. Tap the map to mark your destination."
             android:id="@+id/textView2"
             android:layout_weight="0.5"
             android:layout_gravity="bottom"
@@ -42,10 +42,11 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="2. Show users no further than"
-            android:id="@+id/textView3"
-            android:layout_above="@+id/proximityEditText"
+            android:id="@+id/proximityLabelStart"
+            android:layout_below="@+id/textView2"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"/>
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="25dp"/>
 
         <EditText
             android:layout_width="wrap_content"
@@ -54,10 +55,10 @@
             android:ems="10"
             android:id="@+id/proximityEditText"
             android:hint="km"
-            android:layout_centerVertical="true"
+            android:text="1"
+            android:layout_below="@+id/proximityLabelStart"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:text="1"/>
+            android:layout_alignParentStart="true"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -82,8 +83,18 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="km from you. "
-            android:id="@+id/textView4"
+            android:id="@+id/proximityLabelEnd"
+            android:layout_alignParentStart="true"
             android:layout_below="@+id/proximityEditText"
+            android:layout_alignParentLeft="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="3. Click Begin."
+            android:id="@+id/textView5"
+            android:layout_above="@+id/beginButton"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"/>
 
@@ -96,7 +107,7 @@
         android:layout_weight="0.5"
         android:id="@+id/liveControls"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <ListView
             android:id="@+id/userListView"

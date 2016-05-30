@@ -11,8 +11,10 @@ import java.io.*;
  */
 public class Transaction implements Serializable {
   
-  public static int PENDING = 0;
-  public static int INPROGRESS = 1;
-  public static int COMPLETED = 2;
+  public static int PENDING = 1;
+  public static int INPROGRESS = 2;
+  public static int COMPLETED = 3;
+  
+  
   
 }

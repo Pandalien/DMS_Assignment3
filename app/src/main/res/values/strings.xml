@@ -1,8 +1,17 @@
 <resources>
     <string name="app_name">Carpooler</string>
-    <string name="title_activity_settings">Settings</string>
+
+
+    <string name="proximity_label_for_driver_start">2. Show passengers no further than</string>
+    <string name="proximity_label_for_driver_end">km from me.</string>
+
+    <string name="proximity_label_for_passenger_start">2. Driver\'s destination no further than</string>
+    <string name="proximity_label_for_passenger_end">km from my destination.</string>
+
 
     <!-- Strings related to Settings -->
+
+    <string name="title_activity_settings">Settings</string>
 
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
