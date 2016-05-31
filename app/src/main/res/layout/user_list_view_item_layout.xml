@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Username"
-        android:id="@+id/usernameTextView"
+        android:id="@+id/driverUsernameTextView"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -22,7 +22,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Status"
         android:id="@+id/statusTextView"
-        android:layout_alignBottom="@+id/usernameTextView"
+        android:layout_alignBottom="@+id/driverUsernameTextView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"/>
 

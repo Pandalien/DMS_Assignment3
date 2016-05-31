@@ -165,13 +165,21 @@ public class Carpooler extends HttpServlet {
           
           // update response tailered for passenger or driver
           // IN ADDITION:
-          // PASSENGER must receive the DRIVER_ID/USERNAME of for a pending lift -
+          // PASSENGER must receive the DRIVER_USERNAME for a pending lift -
           // This is the information that must match the NFC or QRcode on the
-          // Android device before it transmits a INPROGRESS message.
+          // Android device before it transmits a COLLECTED message.
           try {
             // this is a continous update, because the other party may cancel the transaction
-            if (user.getStatus() > User.PASSENGER) 
-              jsonResponse.put("transaction", carpoolerEJB.findTransactionId(user.getStatus(), user_id)); 
+            
+            // if the session is for a passenger with a pending, collected or completed status:
+            if (user.getStatus() > User.PASSENGER) {
+              // find the driver from the transaction, and return with response:
+              int transaction_id = carpoolerEJB.findTransactionId(user.getStatus(), user.getUserID());
+              int driver_id = carpoolerEJB.getDriverId(transaction_id);
+              User driver = carpoolerEJB.getUser(driver_id);
+              if (driver != null)
+                jsonResponse.put("driver", driver.toJSONObject()); 
+            }
             jsonResponse.put("userlist", carpoolerEJB.getUserList(user));
           }
           catch (Exception e) {
@@ -203,17 +211,16 @@ public class Carpooler extends HttpServlet {
           // may be sent by either driver or passenger
           // cancels the pending transaction
 
-          int transaction_id = 0;
           int other_user_id = jsonRequest.optInt("other_user_id", 0);
-          if (other_user_id > 0) {
-            transaction_id = carpoolerEJB.findTransactionId(
-                    User.PASSENGER_PENDING, 
-                    user.isDriver() ? other_user_id : user.getUserID()
-            );
-            carpoolerEJB.cancelPendingTransaction(transaction_id);
+          int passenger_id = user.isDriver() ? other_user_id : user.getUserID();
+          if (passenger_id > 0) {
+            int transaction_id = carpoolerEJB.findTransactionId(
+                      User.PASSENGER_PENDING, 
+                      passenger_id
+              );
+            if (transaction_id > 0) 
+              carpoolerEJB.cancelPendingTransaction(transaction_id);  
           }
-          if (transaction_id > 0) 
-            carpoolerEJB.cancelPendingTransaction(transaction_id);
           
           try {
             jsonResponse.put("userlist", carpoolerEJB.getUserList(user));
@@ -263,7 +270,6 @@ public class Carpooler extends HttpServlet {
           double lng = jsonRequest.optDouble("lng", 0);                    
 //          if (driver_id > 0) {         
             carpoolerEJB.updateStatus(user_id, User.PASSENGER_COMPLETED);   
-            
             if (transaction_id > 0) {
               long dt = new java.util.Date().getTime(); // unix timestamp
               carpoolerEJB.setTransactionCompleted(transaction_id, dt, lat, lng);  

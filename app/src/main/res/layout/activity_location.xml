@@ -141,7 +141,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="You will be collected by"
-            android:id="@+id/textView3"
+            android:id="@+id/passengerTransactionTextView"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"/>
 
@@ -150,8 +150,8 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Username"
-            android:id="@+id/usernameTextView"
-            android:layout_below="@+id/textView3"
+            android:id="@+id/driverUsernameTextView"
+            android:layout_below="@+id/passengerTransactionTextView"
             android:layout_centerHorizontal="true"/>
 
         <Button

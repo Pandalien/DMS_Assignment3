@@ -40,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Username:"
-        android:id="@+id/usernameTextView"
+        android:id="@+id/driverUsernameTextView"
         android:layout_below="@+id/loginRadioGroup"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"/>
@@ -51,7 +51,7 @@
         android:inputType="text"
         android:ems="10"
         android:id="@+id/usernameEditText"
-        android:layout_below="@+id/usernameTextView"
+        android:layout_below="@+id/driverUsernameTextView"
         android:layout_alignParentLeft="true"/>
 
     <EditText

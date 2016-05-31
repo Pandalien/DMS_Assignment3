@@ -44,10 +44,9 @@ public class LocationActivity extends AppCompatActivity implements
 
     User user; // the current user of this app
 
-    // following two fields valid for Passengers only:
+    // following field valid for Passengers only:
     // (One driver can have many passengers, but a passenger can have only one driver).
-//    int transaction_id;
-    int driver_id;
+    User driver;
 
 
     // map
@@ -77,7 +76,9 @@ public class LocationActivity extends AppCompatActivity implements
     ListView userListView; // list of other users logged in to the system
     Button endButton;
 
-    // passeger controls
+    // passenger controls
+    TextView passengerTransactionTextView;
+    TextView driverUsernameTextView;
     Button passengerCancelButton;
 
     // the other users on the system which meet the criteria to show in the list,
@@ -131,9 +132,8 @@ public class LocationActivity extends AppCompatActivity implements
         usertype = extras.getInt("usertype");
 
 
-        user = new User();
-        //transaction_id = 0;
-        driver_id = 0;
+        user = null;
+        driver = null;
 
 
         youMarker = null;
@@ -155,8 +155,6 @@ public class LocationActivity extends AppCompatActivity implements
         // start controls
         beginButton = (Button) findViewById(R.id.beginButton);
         cancelButton = (Button) findViewById(R.id.cancelButton);
-        endButton = (Button) findViewById(R.id.endButton);
-
         proximityLabelStart = (TextView) findViewById(R.id.proximityLabelStart);
         proximityLabelEnd = (TextView) findViewById(R.id.proximityLabelEnd);
         proximityEditText = (EditText) findViewById(R.id.proximityEditText);
@@ -165,6 +163,7 @@ public class LocationActivity extends AppCompatActivity implements
         cancelButton.setOnClickListener(this);
 
         // live controls
+        endButton = (Button) findViewById(R.id.endButton);
         endButton.setOnClickListener(this);
 
         userListView = (ListView) findViewById(R.id.userListView);
@@ -176,6 +175,9 @@ public class LocationActivity extends AppCompatActivity implements
 
         // passenger controls
         passengerCancelButton = (Button) findViewById(R.id.passengerCancelButton);
+        passengerTransactionTextView = (TextView) findViewById(R.id.passengerTransactionTextView);
+        driverUsernameTextView = (TextView) findViewById(R.id.driverUsernameTextView);
+
         passengerCancelButton.setOnClickListener(this);
 
 
@@ -329,7 +331,7 @@ public class LocationActivity extends AppCompatActivity implements
         } else if (view == endButton) {
             logout();
         } else if (view == passengerCancelButton) {
-
+            transactionCancelled(user.getUserID());
         }
     } // onClick
 
@@ -368,23 +370,53 @@ public class LocationActivity extends AppCompatActivity implements
 
 
     public void updateControls() {
-        beginButton.setEnabled(destMarker != null);
-        startControls.setVisibility(isOnline() ? View.GONE : View.VISIBLE);
-        liveControls.setVisibility(isOnline() ? View.VISIBLE : View.GONE);
 
-        if (usertype == User.DRIVER) {
-            proximityLabelStart.setText(R.string.proximity_label_for_driver_start);
-            proximityLabelEnd.setText(R.string.proximity_label_for_driver_end);
+        if (driver != null && user != null) {
+            // passenger controls
+            startControls.setVisibility(View.GONE);
+            liveControls.setVisibility(View.GONE);
+            passengerControls.setVisibility(View.VISIBLE);
+
+            if (user.getStatus() == User.PASSENGER_PENDING)
+                passengerTransactionTextView.setText("You will be collected by");
+            else if (user.getStatus() == User.PASSENGER_COLLECTED)
+                passengerTransactionTextView.setText("You have been collected by");
+            else if (user.getStatus() == User.PASSENGER_COMPLETED)
+                passengerTransactionTextView.setText("You have completed your trip with");
+
+            driverUsernameTextView.setText(driver.getUsername());
+
         }
-        else if (usertype == User.PASSENGER) {
-            proximityLabelStart.setText(R.string.proximity_label_for_passenger_start);
-            proximityLabelEnd.setText(R.string.proximity_label_for_passenger_end);
+        else if (driver == null && user != null) {
+            // driver/passenger live controls
+            startControls.setVisibility(View.GONE);
+            liveControls.setVisibility(View.VISIBLE);
+            passengerControls.setVisibility(View.GONE);
+
         }
+        else {
+            // start controls
+            startControls.setVisibility(View.VISIBLE);
+            liveControls.setVisibility(View.GONE);
+            passengerControls.setVisibility(View.GONE);
+
+            beginButton.setEnabled(destMarker != null);
+
+            if (usertype == User.DRIVER) {
+                proximityLabelStart.setText(R.string.proximity_label_for_driver_start);
+                proximityLabelEnd.setText(R.string.proximity_label_for_driver_end);
+            }
+            else if (usertype == User.PASSENGER) {
+                proximityLabelStart.setText(R.string.proximity_label_for_passenger_start);
+                proximityLabelEnd.setText(R.string.proximity_label_for_passenger_end);
+            }
+        }
+
     } // updateControls
 
 
     public boolean isOnline() {
-        return user.isDriver() || user.isPassenger();
+        return user != null && (user.getStatus() > 0);
     }
 
 
@@ -748,18 +780,19 @@ public class LocationActivity extends AppCompatActivity implements
     private class LocationUpdateComm extends HttpJsonCommunicator {
 
         protected void ok(JSONObject response) {
-            
+
             // these fields are returned to passenger in case of a valid transaction
-            if (response.has("transaction"))
+            driver = null;
+            if (response.has("driver"))
                 try {
-                    JSONObject jsonTransaction = response.getJSONObject("transaction");
-                    //transaction_id = jsonTransaction.optInt("transaction_id", 0);
-                    driver_id = jsonTransaction.optInt("driver_id", 0);
+                    driver = new User(response.getJSONObject("driver"));
                 }
                 catch (Exception e) {
                     System.err.println(e);
                 }
 
+
+            // user list
             if (response.has("userlist"))
                 try {
                     updateUserList(response.getJSONObject("userlist"));
@@ -767,6 +800,8 @@ public class LocationActivity extends AppCompatActivity implements
                 catch (Exception e) {
                     System.err.println(e);
                 }
+
+            updateControls();
         }
 
         protected void error(String result, JSONObject response) {
@@ -805,6 +840,7 @@ public class LocationActivity extends AppCompatActivity implements
                 catch (Exception e) {
                     System.err.println(e.getMessage());
                 }
+            updateControls();
         }
 
         protected void error(String result, JSONObject response) {
@@ -823,8 +859,6 @@ public class LocationActivity extends AppCompatActivity implements
         JSONObject cmd = new JSONObject();
         try {
             cmd.put("function", "cancelled");
-          //  cmd.put("passenger_id", !user.isDriver() ? user.getUserID() : other_user_id);
-          //  cmd.put("driver_id", user.isDriver() ? user.getUserID() : other_user_id);
             cmd.put("other_user_id", other_user_id);
             executeComm(cmd, new TransactionCancelledComm());
         }
@@ -844,6 +878,7 @@ public class LocationActivity extends AppCompatActivity implements
                 catch (Exception e) {
                     System.err.println(e.getMessage());
                 }
+            updateControls();
         }
 
         protected void error(String result, JSONObject response) {
@@ -877,7 +912,16 @@ public class LocationActivity extends AppCompatActivity implements
 
     private class TransactionInProgressComm extends HttpJsonCommunicator {
 
-        protected void ok(JSONObject response) {}
+        protected void ok(JSONObject response) {
+            if (response.has("userlist"))
+                try {
+                    updateUserList(response.getJSONObject("userlist"));
+                }
+                catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+            updateControls();
+        }
 
         protected void error(String result, JSONObject response) {
             if (result != null && result.length() > 0)
@@ -889,15 +933,17 @@ public class LocationActivity extends AppCompatActivity implements
 
 
     // ------ HTTP command: Completed ------
-    // Sent by passenger's phone also.
+    // Sent by passenger's phone.
     // Can be done by NFC/QR scan also ("tag off"), but could also be a button.
 
 
-    protected void transactionCompleted(int _id, double lat, double lng) {
+    protected void transactionCompleted(int passenger_id, double lat, double lng) {
         JSONObject cmd = new JSONObject();
         try {
             cmd.put("function", "completed");
-            cmd.put("driver_id", driver_id);
+            if (driver != null)
+                cmd.put("driver_id", driver.getUserID());
+            cmd.put("passenger_id", passenger_id);
             cmd.put("lat", lat);
             cmd.put("lng", lng);
             executeComm(cmd, new TransactionCompleted());
@@ -910,7 +956,16 @@ public class LocationActivity extends AppCompatActivity implements
 
     private class TransactionCompleted extends HttpJsonCommunicator {
 
-        protected void ok(JSONObject response) {}
+        protected void ok(JSONObject response) {
+            if (response.has("userlist"))
+                try {
+                    updateUserList(response.getJSONObject("userlist"));
+                }
+                catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+            updateControls();
+        }
 
         protected void error(String result, JSONObject response) {
             if (result != null && result.length() > 0)

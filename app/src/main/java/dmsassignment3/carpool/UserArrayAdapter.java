@@ -47,7 +47,7 @@ public class UserArrayAdapter extends ArrayAdapter<User> {
 
         final User user = objects.get(position);
 
-        TextView usernameTextView = (TextView) convertView.findViewById(R.id.usernameTextView);
+        TextView usernameTextView = (TextView) convertView.findViewById(R.id.driverUsernameTextView);
         TextView statusTextView = (TextView) convertView.findViewById(R.id.statusTextView);
         Button actionButton = (Button) convertView.findViewById(R.id.actionButton);
 
