@@ -32,6 +32,9 @@ proguard/
 # Android Studio captures folder
 captures/
 
+# java web project private settings folder
+CarpoolServer/nbproject/private
+
 # Intellij
 *.iml
 
