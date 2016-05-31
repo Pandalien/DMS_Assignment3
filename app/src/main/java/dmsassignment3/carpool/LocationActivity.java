@@ -1091,6 +1091,7 @@ public class LocationActivity extends AppCompatActivity implements
     private class TransactionCompleted extends HttpJsonCommunicator {
 
         protected void ok(JSONObject response) {
+/*
             user.setStatus(User.PASSENGER_COMPLETED);
             if (response.has("userlist"))
                 try {
@@ -1100,6 +1101,12 @@ public class LocationActivity extends AppCompatActivity implements
                     System.err.println(e.getMessage());
                 }
             updateControls();
+*/
+            String msg = "Trip completed.";
+            if (driver != null)
+                msg = "Your trip with " + driver.getUsername() + " is completed.";
+            Toast.makeText(activity, msg, Toast.LENGTH_LONG).show();
+            finish();
         }
 
         protected void error(String result, JSONObject response) {
