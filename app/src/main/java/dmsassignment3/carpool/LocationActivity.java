@@ -64,6 +64,7 @@ public class LocationActivity extends AppCompatActivity implements
     // UI controls
     ViewGroup startControls;
     ViewGroup liveControls;
+    ViewGroup passengerControls;
 
     // start controls
     TextView proximityLabelStart;
@@ -75,7 +76,9 @@ public class LocationActivity extends AppCompatActivity implements
     // live controls
     ListView userListView; // list of other users logged in to the system
     Button endButton;
-    Button submitButton; // used by subclass to submit a special function for the selected user
+
+    // passeger controls
+    Button passengerCancelButton;
 
     // the other users on the system which meet the criteria to show in the list,
     // see CarpoolerEJB.getUserList() on server side.
@@ -147,6 +150,9 @@ public class LocationActivity extends AppCompatActivity implements
         // UI controls
         startControls = (ViewGroup) findViewById(R.id.startControls);
         liveControls = (ViewGroup) findViewById(R.id.liveControls);
+        passengerControls = (ViewGroup) findViewById(R.id.passengerControls);
+
+        // start controls
         beginButton = (Button) findViewById(R.id.beginButton);
         cancelButton = (Button) findViewById(R.id.cancelButton);
         endButton = (Button) findViewById(R.id.endButton);
@@ -157,6 +163,8 @@ public class LocationActivity extends AppCompatActivity implements
 
         beginButton.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
+
+        // live controls
         endButton.setOnClickListener(this);
 
         userListView = (ListView) findViewById(R.id.userListView);
@@ -165,6 +173,10 @@ public class LocationActivity extends AppCompatActivity implements
         userListAdapter.setActionButtonListener(this);
         userListView.setAdapter(userListAdapter);
         userListView.setOnItemClickListener(this);
+
+        // passenger controls
+        passengerCancelButton = (Button) findViewById(R.id.passengerCancelButton);
+        passengerCancelButton.setOnClickListener(this);
 
 
         // must be called last, at the end of the constructor
@@ -316,6 +328,8 @@ public class LocationActivity extends AppCompatActivity implements
             finish();
         } else if (view == endButton) {
             logout();
+        } else if (view == passengerCancelButton) {
+
         }
     } // onClick
 
@@ -734,6 +748,7 @@ public class LocationActivity extends AppCompatActivity implements
     private class LocationUpdateComm extends HttpJsonCommunicator {
 
         protected void ok(JSONObject response) {
+            
             // these fields are returned to passenger in case of a valid transaction
             if (response.has("transaction"))
                 try {

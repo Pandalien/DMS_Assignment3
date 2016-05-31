@@ -46,3 +46,4 @@ local.properties
 /CarpoolServer/dist/
 local.properties
 /CarpoolServer/nbproject/private/
+CarpoolServer/nbproject/private/private.properties
