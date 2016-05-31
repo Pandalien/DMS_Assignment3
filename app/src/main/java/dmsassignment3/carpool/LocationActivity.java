@@ -511,8 +511,11 @@ public class LocationActivity extends AppCompatActivity implements
             liveControls.setVisibility(View.VISIBLE);
             passengerControls.setVisibility(View.GONE);
 
+            title = title + " - " + user.getUsername();
             if (user.isDriver())
-                title = title + " - " + user.getUsername() + " is driving.";
+                title = title + " is driving.";
+            else
+                title = title + " is a passenger.";
         }
         else if (driver != null && user != null) {
             // passenger controls
@@ -912,8 +915,7 @@ public class LocationActivity extends AppCompatActivity implements
                 } catch (Exception e) {
                     System.err.println(e);
                 }
-                else
-                    user.setStatus(User.PASSENGER);
+
             // update passenger status:
             if (response.has("status"))
                 try {
@@ -922,7 +924,7 @@ public class LocationActivity extends AppCompatActivity implements
                     System.err.println(e);
                 }
             else
-                user.setStatus(User.PASSENGER);
+                user.setStatus(usertype);
 
 
             // user list
@@ -1004,8 +1006,10 @@ public class LocationActivity extends AppCompatActivity implements
     private class TransactionCancelledComm extends HttpJsonCommunicator {
 
         protected void ok(JSONObject response) {
-            if (user.getStatus() == User.PASSENGER_PENDING)
+            if (user.getStatus() >= User.PASSENGER_PENDING) {
                 user.setStatus(User.PASSENGER);
+                driver = null;
+            }
             if (response.has("userlist"))
                 try {
                     updateUserList(response.getJSONObject("userlist"));
