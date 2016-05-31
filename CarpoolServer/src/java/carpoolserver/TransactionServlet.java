@@ -4,7 +4,6 @@
 package carpoolserver;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,13 +37,22 @@ public class TransactionServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        models.User user = ejbFacade.findByUsernameAndPassword(request.getParameter("username"), request.getParameter("password"));
-        request.getSession().setAttribute(CurrentUserAttributeName, user);
+        models.User user = (models.User)request.getSession().getAttribute(CurrentUserAttributeName);
         
         if (user == null) {
-            sendMessage(request, response, "Please use the login first in the login screen.");
+            String name = request.getParameter("username");
+            String pass = request.getParameter("password");
+            String url = request.getRequestURL().toString();
+            user = ejbFacade.findByUsernameAndPassword(name, pass);
+        }
+        
+        if (user == null) {
+            //sendMessage(request, response, "Please use the login first in the login screen.");
+            response.sendRedirect("login.html");
             return;
         }
+        
+        request.getSession().setAttribute(CurrentUserAttributeName, user);
         
         List<models.Transaction> ts = ejbFacadeTrans.findByDriverId(user);
         

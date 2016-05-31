@@ -8,15 +8,9 @@
         <link rel="stylesheet" href="css/site.css"/>
     </head>
     <body>
-        <header>
-            <h1>Carpooler</h1>
-        </header>
         <div id="body">
             <p>${server_message}</p>
         </div>
-        <footer>
-            <small>Copy right 2016.</small>
-        </footer>
     </body>
 </html>
 

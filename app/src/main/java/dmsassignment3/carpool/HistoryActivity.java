@@ -15,12 +15,18 @@ import android.widget.Toast;
 import java.net.URL;
 
 public class HistoryActivity extends AppCompatActivity {
+    String name;
+    String pass;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
         setupActionBar();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        name = prefs.getString("username", "");
+        pass = prefs.getString("userpass", "");
 
         setUp();
     }
@@ -75,7 +81,7 @@ public class HistoryActivity extends AppCompatActivity {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             String http_server = prefs.getString("http_server", "Local").toLowerCase() + "_addr";
             String hostport = prefs.getString(http_server, "localhost:8080");
-            url = new URL("http://" + hostport + "/CarpoolServer/TransactionServlet");
+            url = new URL("http://" + hostport + "/CarpoolServer/TransactionServlet?"+"username="+name+"&password="+pass);
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
