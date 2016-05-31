@@ -48,7 +48,7 @@
     <string name="pref_http_default_emulator_addr">10.0.2.2:8080</string>
 
     <string name="pref_http_title_local_addr">Local</string>
-    <string name="pref_http_default_local_addr">192.168.178.58:8080</string>
+    <string name="pref_http_default_local_addr">172.28.67.142:8080</string>
 
     <string name="pref_http_title_remote_addr">Remote</string>
     <string name="pref_http_default_remote_addr">raptor2.aut.ac.nz:8080</string>

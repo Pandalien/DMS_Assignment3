@@ -1,8 +1,10 @@
 package dmsassignment3.carpool;
 
-import android.app.Activity;
+import android.app.*;
 import android.content.*;
 import android.content.SharedPreferences.*;
+import android.nfc.*;
+import android.nfc.tech.*;
 import android.os.*;
 import android.support.v7.app.AppCompatActivity;
 import android.location.Location;
@@ -98,6 +100,13 @@ public class LocationActivity extends AppCompatActivity implements
     java.net.CookieManager cookieJar;
 
 
+    //variables for NFC
+    NfcAdapter mNfcAdapter;
+    PendingIntent pendingIntent;
+    IntentFilter[] intentFiltersArray;
+    String[][] techList;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -185,6 +194,9 @@ public class LocationActivity extends AppCompatActivity implements
         // must be called last, at the end of the constructor
         updateControls();
         copyUserpassToSharedPrefs();
+
+        //setup Nfc Listener
+        setupNfcListener();
     } // onCreate
 
     @Override
@@ -216,6 +228,7 @@ public class LocationActivity extends AppCompatActivity implements
     @Override
     protected void onPause() {
         System.out.println("onPause");
+        enableNfcListener(false);
         super.onPause();
     } // onPause
 
@@ -223,8 +236,110 @@ public class LocationActivity extends AppCompatActivity implements
     protected void onResume() {
         System.out.println("onResume");
         super.onResume();
+        enableNfcListener(true);
 //        if (googleApiClient.isConnected())
     }
+
+
+    private void setupNfcListener() {
+        //call this in onCreate
+
+        // Check for available NFC Adapter
+        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (mNfcAdapter == null) {
+            return;
+        }
+
+        pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this,
+                getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+
+        IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
+        try {
+            ndef.addDataType("*/*");
+        } catch (IntentFilter.MalformedMimeTypeException e) {
+            throw new RuntimeException("fail", e);
+        }
+
+        IntentFilter tag = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
+        try{
+            tag.addDataType("*/*");
+        } catch (IntentFilter.MalformedMimeTypeException e) {
+            e.printStackTrace();
+        }
+        IntentFilter tech = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
+        try {
+            tech.addDataType("*/*");
+        } catch (IntentFilter.MalformedMimeTypeException e) {
+            throw new RuntimeException("fail", e);
+        }
+
+        intentFiltersArray = new IntentFilter[] { tag, ndef, tech };
+
+        techList = new String[][] { new String[] { NfcA.class.getName(),
+                NfcB.class.getName(), NfcF.class.getName(),
+                NfcV.class.getName(), IsoDep.class.getName(),
+                MifareClassic.class.getName(),
+                MifareUltralight.class.getName(), Ndef.class.getName() } };
+    } // setupNfcListener
+
+    private void enableNfcListener(boolean e){
+        //in the onResume method, you should enable this
+        //and disable in onPause
+        if (mNfcAdapter == null) {
+            return;
+        }
+        if(e){
+            mNfcAdapter.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techList);
+        }
+        else{
+            mNfcAdapter.disableForegroundDispatch(this);
+        }
+    } // enableNfcListener
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        String action = intent.getAction();
+
+        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)) {
+            // reag TagTechnology object...
+        } else if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
+            // read NDEF message...
+            String nfcMessage = null;
+            //get NFC tag name
+            //Intent intent = getIntent();
+            //Check mime type, get ndef message  from intent and display the message in text view
+            if(intent.getType() != null && intent.getType().equals("application/aut.dms.carpooler")) {
+                Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+                NdefMessage msg = (NdefMessage) rawMsgs[0];
+                NdefRecord record = msg.getRecords()[0];
+                nfcMessage = new String(record.getPayload());
+            }
+
+            // -----
+            // Check NFC message matches the driver's username:
+            // If positive match, transmit a transactionCollected message for this passenger
+
+            if (nfcMessage == null)
+                Toast.makeText(this, "Failed to read tag.", Toast.LENGTH_LONG).show();
+            else if (driver != null && user != null) {
+                if (driver.getUsername().equals(nfcMessage)) {
+                    if (user.getStatus() == User.PASSENGER_PENDING)
+                        transactionCollected(driver.getUserID(), user.getLat(), user.getLng());
+                    else if (user.getStatus() == User.PASSENGER_COLLECTED)
+                        transactionCompleted(driver.getUserID(), user.getLat(), user.getLng());
+                }
+                else
+                  Toast.makeText(this, "Driver does not match.", Toast.LENGTH_LONG).show();
+            }
+
+            // -----
+        } else if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
+
+        }
+    } // onNewIntent
+
+
+
 
     protected LocationRequest newLocationRequest(int numUpdates, long millis) {
         LocationRequest locationRequest = LocationRequest.create();
@@ -794,10 +909,20 @@ public class LocationActivity extends AppCompatActivity implements
             if (response.has("driver"))
                 try {
                     driver = new User(response.getJSONObject("driver"));
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     System.err.println(e);
                 }
+                else
+                    user.setStatus(User.PASSENGER);
+            // update passenger status:
+            if (response.has("status"))
+                try {
+                    user.setStatus(response.getInt("status"));
+                } catch (Exception e) {
+                    System.err.println(e);
+                }
+            else
+                user.setStatus(User.PASSENGER);
 
 
             // user list
@@ -879,6 +1004,8 @@ public class LocationActivity extends AppCompatActivity implements
     private class TransactionCancelledComm extends HttpJsonCommunicator {
 
         protected void ok(JSONObject response) {
+            if (user.getStatus() == User.PASSENGER_PENDING)
+                user.setStatus(User.PASSENGER);
             if (response.has("userlist"))
                 try {
                     updateUserList(response.getJSONObject("userlist"));
@@ -903,11 +1030,11 @@ public class LocationActivity extends AppCompatActivity implements
     // The NFC/QR match is verified by the phone, if successful then sends this message:
 
 
-    protected void transactionCollected(double lat, double lng) {
+    protected void transactionCollected(int driver_id, double lat, double lng) {
         JSONObject cmd = new JSONObject();
         try {
             cmd.put("function", "collected");
-            cmd.put("driver_id", driver.getUserID());
+            cmd.put("driver_id", driver_id);
             cmd.put("lat", lat);
             cmd.put("lng", lng);
             executeComm(cmd, new TransactionInProgressComm());
@@ -921,6 +1048,7 @@ public class LocationActivity extends AppCompatActivity implements
     private class TransactionInProgressComm extends HttpJsonCommunicator {
 
         protected void ok(JSONObject response) {
+            user.setStatus(User.PASSENGER_COLLECTED);
             if (response.has("userlist"))
                 try {
                     updateUserList(response.getJSONObject("userlist"));
@@ -948,14 +1076,8 @@ public class LocationActivity extends AppCompatActivity implements
     protected void transactionCompleted(int driver_id, double lat, double lng) {
         JSONObject cmd = new JSONObject();
         try {
-            if (user.getStatus() == User.PASSENGER_COLLECTED && driver != null) {
-                // this is the passenger's phone
-
-            }
-
             cmd.put("function", "completed");
-            if (driver != null)
-                cmd.put("driver_id", driver.getUserID());
+            cmd.put("driver_id", driver_id);
             cmd.put("lat", lat);
             cmd.put("lng", lng);
             executeComm(cmd, new TransactionCompleted());
@@ -969,6 +1091,7 @@ public class LocationActivity extends AppCompatActivity implements
     private class TransactionCompleted extends HttpJsonCommunicator {
 
         protected void ok(JSONObject response) {
+            user.setStatus(User.PASSENGER_COMPLETED);
             if (response.has("userlist"))
                 try {
                     updateUserList(response.getJSONObject("userlist"));

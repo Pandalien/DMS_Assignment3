@@ -179,6 +179,7 @@ public class Carpooler extends HttpServlet {
               User driver = carpoolerEJB.getUser(driver_id);
               if (driver != null)
                 jsonResponse.put("driver", driver.toJSONObject()); 
+              jsonResponse.put("status", user.getStatus());
             }
             jsonResponse.put("userlist", carpoolerEJB.getUserList(user));
           }
