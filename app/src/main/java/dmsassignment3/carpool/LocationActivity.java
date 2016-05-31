@@ -2,6 +2,7 @@ package dmsassignment3.carpool;
 
 import android.app.Activity;
 import android.content.*;
+import android.content.SharedPreferences.*;
 import android.os.*;
 import android.support.v7.app.AppCompatActivity;
 import android.location.Location;
@@ -371,7 +372,34 @@ public class LocationActivity extends AppCompatActivity implements
 
     public void updateControls() {
 
-        if (driver != null && user != null) {
+        String title = getResources().getString(R.string.app_name);
+
+        if (driver == null && user == null) {
+            // start controls
+            startControls.setVisibility(View.VISIBLE);
+            liveControls.setVisibility(View.GONE);
+            passengerControls.setVisibility(View.GONE);
+
+            beginButton.setEnabled(destMarker != null);
+
+            if (usertype == User.DRIVER) {
+                proximityLabelStart.setText(R.string.proximity_label_for_driver_start);
+                proximityLabelEnd.setText(R.string.proximity_label_for_driver_end);
+            } else if (usertype == User.PASSENGER) {
+                proximityLabelStart.setText(R.string.proximity_label_for_passenger_start);
+                proximityLabelEnd.setText(R.string.proximity_label_for_passenger_end);
+            }
+        }
+        else if (driver == null && user != null) {
+            // driver/passenger live controls
+            startControls.setVisibility(View.GONE);
+            liveControls.setVisibility(View.VISIBLE);
+            passengerControls.setVisibility(View.GONE);
+
+            if (user.isDriver())
+                title = title + " - " + user.getUsername() + " is driving.";
+        }
+        else if (driver != null && user != null) {
             // passenger controls
             startControls.setVisibility(View.GONE);
             liveControls.setVisibility(View.GONE);
@@ -386,31 +414,11 @@ public class LocationActivity extends AppCompatActivity implements
 
             driverUsernameTextView.setText(driver.getUsername());
 
+            title = title + " - " + user.getUsername();
         }
-        else if (driver == null && user != null) {
-            // driver/passenger live controls
-            startControls.setVisibility(View.GONE);
-            liveControls.setVisibility(View.VISIBLE);
-            passengerControls.setVisibility(View.GONE);
 
-        }
-        else {
-            // start controls
-            startControls.setVisibility(View.VISIBLE);
-            liveControls.setVisibility(View.GONE);
-            passengerControls.setVisibility(View.GONE);
 
-            beginButton.setEnabled(destMarker != null);
-
-            if (usertype == User.DRIVER) {
-                proximityLabelStart.setText(R.string.proximity_label_for_driver_start);
-                proximityLabelEnd.setText(R.string.proximity_label_for_driver_end);
-            }
-            else if (usertype == User.PASSENGER) {
-                proximityLabelStart.setText(R.string.proximity_label_for_passenger_start);
-                proximityLabelEnd.setText(R.string.proximity_label_for_passenger_end);
-            }
-        }
+        setTitle(title);
 
     } // updateControls
 
@@ -422,8 +430,6 @@ public class LocationActivity extends AppCompatActivity implements
 
     // called when user has successfully logged in to the server
     public void loggedIn() {
-        setTitle("Carpooler - " + user.getUsername());
-
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String refreshStr = prefs.getString("location_refresh_interval", "4000");
 
@@ -602,8 +608,10 @@ public class LocationActivity extends AppCompatActivity implements
             password = userpass.optString("password");
         }
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.edit().putString("username", username);
-        prefs.edit().putString("userpass", password);
+        Editor editor = prefs.edit();
+        editor.putString("username", username);
+        editor.putString("userpass", password);
+        editor.commit();
     } // copyUserpassToSharedPrefs
 
 
@@ -895,11 +903,11 @@ public class LocationActivity extends AppCompatActivity implements
     // The NFC/QR match is verified by the phone, if successful then sends this message:
 
 
-    protected void transactionCollected(int driver_id, double lat, double lng) {
+    protected void transactionCollected(double lat, double lng) {
         JSONObject cmd = new JSONObject();
         try {
             cmd.put("function", "collected");
-            cmd.put("driver_id", driver_id);
+            cmd.put("driver_id", driver.getUserID());
             cmd.put("lat", lat);
             cmd.put("lng", lng);
             executeComm(cmd, new TransactionInProgressComm());
@@ -934,16 +942,20 @@ public class LocationActivity extends AppCompatActivity implements
 
     // ------ HTTP command: Completed ------
     // Sent by passenger's phone.
-    // Can be done by NFC/QR scan also ("tag off"), but could also be a button.
+    // Can be done by NFC/QR scan also ("tag off"), but could also be a button
 
 
-    protected void transactionCompleted(int passenger_id, double lat, double lng) {
+    protected void transactionCompleted(int driver_id, double lat, double lng) {
         JSONObject cmd = new JSONObject();
         try {
+            if (user.getStatus() == User.PASSENGER_COLLECTED && driver != null) {
+                // this is the passenger's phone
+
+            }
+
             cmd.put("function", "completed");
             if (driver != null)
                 cmd.put("driver_id", driver.getUserID());
-            cmd.put("passenger_id", passenger_id);
             cmd.put("lat", lat);
             cmd.put("lng", lng);
             executeComm(cmd, new TransactionCompleted());
