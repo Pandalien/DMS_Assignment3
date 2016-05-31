@@ -468,28 +468,10 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       System.err.println(e.getMessage());                  
     }
   } // updateStatus
+   
   
-  
-  public void updateTransactionId(int user_id, int transaction_id) {  
-    try {
-      PreparedStatement preparedStatement;
-      String query = "update " + dbName + "." + userTableName 
-                   + " set transaction_id = ?"
-                   + " where user_id = ?;";       
-      preparedStatement = connection.prepareStatement(query);
-      preparedStatement.setInt(1, transaction_id);      
-      preparedStatement.setInt(2, user_id);
-      preparedStatement.executeUpdate();
-    }
-    catch (Exception e) {
-      System.err.println(e.getMessage());                  
-    }
-  } // updateTransactionId
-  
-  
-  public int findTransactionInfo(int status, int passenger_id) {
+  public int findTransactionId(int status, int passenger_id) {
     int transaction_id = 0;
- //   int driver_id = 0;
     
     // get most recent pending transaction for this passenger
     try {
@@ -507,26 +489,13 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       preparedStatement.setInt(1, status);
       preparedStatement.setInt(2, passenger_id);      
       ResultSet resultSet = preparedStatement.executeQuery();
-      if (resultSet.next()) {
+      if (resultSet.next()) 
         transaction_id = resultSet.getInt("transaction_id");        
- //       driver_id = resultSet.getInt("driver_id");
-      }
     }
     catch (Exception e) {
       System.err.println(e.getMessage());                  
     }
-/*    
-    // second, send back the json object
-    JSONObject jsonTransaction = new JSONObject();
-    try {
-      jsonTransaction.put("transaction_id", transaction_id);
-      jsonTransaction.put("driver_id", driver_id);
-    }
-    catch (Exception e) {
-      System.err.println(e.getMessage());
-    }    
-    return jsonTransaction;    
-*/
+
     return transaction_id;
   } // findPendingTransactionInfo
 
@@ -550,8 +519,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
     return result;
   } // getDriverId
   
-  
-  
+    
   public int newPendingTransaction(int driver_id, int passenger_id) {  
     // returns new transaction_id
     // 0 if an error
@@ -596,10 +564,8 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
       ResultSet resultSet = preparedStatement.executeQuery();
       if (resultSet.next()) 
         passenger_id = resultSet.getInt("passenger_id");      
-      if (passenger_id > 0) {
-        updateTransactionId(passenger_id, 0);
+      if (passenger_id > 0) 
         updateStatus(passenger_id, User.PASSENGER);
-      }
       
       // remove transaction from the table
       // (but could be left there marked as cancelled also)
@@ -626,7 +592,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
         + " where transaction_id = ?;";      
       preparedStatement = connection.prepareStatement(query);
       preparedStatement.setInt(1, User.PASSENGER_COLLECTED);
-      preparedStatement.setLong(2, dt);
+      preparedStatement.setDate(2, new java.sql.Date(dt));
       preparedStatement.setDouble(3, lat);      
       preparedStatement.setDouble(4, lng);            
       preparedStatement.setInt(5, transaction_id);
@@ -647,7 +613,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
         + " where transaction_id = ?;";      
       preparedStatement = connection.prepareStatement(query);
       preparedStatement.setInt(1, User.PASSENGER_COMPLETED);
-      preparedStatement.setLong(2, dt);
+      preparedStatement.setDate(2, new java.sql.Date(dt));
       preparedStatement.setDouble(3, lat);      
       preparedStatement.setDouble(4, lng);            
       preparedStatement.setInt(5, transaction_id);

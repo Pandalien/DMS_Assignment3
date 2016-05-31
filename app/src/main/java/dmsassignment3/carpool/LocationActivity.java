@@ -335,20 +335,20 @@ public class LocationActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onActionButtonClick(int position, User user) {
+    public void onActionButtonClick(int position, User passenger) {
         userList.remove(position);
         // Driver clicked Collect
-        if (user.getStatus() == User.PASSENGER) {
-            transactionPending(user.getUserID());
+        if (passenger.getStatus() == User.PASSENGER) {
+            transactionPending(passenger.getUserID());
         }
         // Driver clicked Cancel
-        else if (user.getStatus() == User.PASSENGER_PENDING) {
-            transactionCancelled(user.getUserID());
+        else if (passenger.getStatus() == User.PASSENGER_PENDING) {
+            transactionCancelled(passenger.getUserID());
         }
         // Driver clicked End
-        else if (user.getStatus() == User.PASSENGER_COLLECTED)
-            transactionCompleted(user.getUserID(), youMarker.getPosition().latitude, youMarker.getPosition().longitude);
-        userList.add(position, user);
+        else if (passenger.getStatus() == User.PASSENGER_COLLECTED)
+            transactionCompleted(passenger.getUserID(), youMarker.getPosition().latitude, youMarker.getPosition().longitude);
+        userList.add(position, passenger);
         userListAdapter.notifyDataSetChanged();
     } // onActionButtonClick
 
@@ -848,7 +848,7 @@ public class LocationActivity extends AppCompatActivity implements
     protected void transactionCollected(int driver_id, double lat, double lng) {
         JSONObject cmd = new JSONObject();
         try {
-            cmd.put("function", "command");
+            cmd.put("function", "collected");
             cmd.put("driver_id", driver_id);
             cmd.put("lat", lat);
             cmd.put("lng", lng);
@@ -878,11 +878,11 @@ public class LocationActivity extends AppCompatActivity implements
     // Can be done by NFC/QR scan also ("tag off"), but could also be a button.
 
 
-    protected void transactionCompleted(int transaction_id, double lat, double lng) {
+    protected void transactionCompleted(int _id, double lat, double lng) {
         JSONObject cmd = new JSONObject();
         try {
-            cmd.put("function", "command");
-            cmd.put("transaction_id", transaction_id);
+            cmd.put("function", "completed");
+            cmd.put("driver_id", driver_id);
             cmd.put("lat", lat);
             cmd.put("lng", lng);
             executeComm(cmd, new TransactionCompleted());

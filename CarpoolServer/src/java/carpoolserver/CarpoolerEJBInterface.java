@@ -38,12 +38,10 @@ public interface CarpoolerEJBInterface {
   public void updateProximity(int user_id, double proximity);
   
 //  public void updateUser(User user);
-  public void updateStatus(int user_id, int status);  
-  
-  public void updateTransactionId(int user_id, int transaction_id);  
+  public void updateStatus(int user_id, int status);    
   
   
-  public int findTransactionInfo(int status, int passenger_id);
+  public int findTransactionId(int status, int passenger_id);
 
 
   public int getDriverId(int transaction_id);

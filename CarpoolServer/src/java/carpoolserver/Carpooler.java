@@ -171,7 +171,7 @@ public class Carpooler extends HttpServlet {
           try {
             // this is a continous update, because the other party may cancel the transaction
             if (user.getStatus() > User.PASSENGER) 
-              jsonResponse.put("transaction", carpoolerEJB.findTransactionInfo(user.getStatus(), user_id)); 
+              jsonResponse.put("transaction", carpoolerEJB.findTransactionId(user.getStatus(), user_id)); 
             jsonResponse.put("userlist", carpoolerEJB.getUserList(user));
           }
           catch (Exception e) {
@@ -183,18 +183,11 @@ public class Carpooler extends HttpServlet {
         else if (function.equals("pending")) {
           
           // sent by driver's phone
-          // this indicates to the system that no other driver should collect this passenger
-          int transaction_id = 0;          
+          // this indicates to the system that no other driver should collect this passenger         
           int passenger_id = jsonRequest.optInt("passenger_id", 0);
           if (passenger_id > 0) {
-            transaction_id = carpoolerEJB.newPendingTransaction(user_id, passenger_id);            
-            carpoolerEJB.updateTransactionId(passenger_id, transaction_id);
-            carpoolerEJB.updateStatus(passenger_id, User.PASSENGER_PENDING);                        
-/*            
-            transaction_id = carpoolerEJB.newPendingTransaction(user.getUserID(), passenger_id);            
-            carpoolerEJB.updateTransactionId(passenger_id, transaction_id);
-            carpoolerEJB.updateStatus(passenger_id, User.PASSENGER_PENDING);            
-*/            
+            carpoolerEJB.newPendingTransaction(user_id, passenger_id);            
+            carpoolerEJB.updateStatus(passenger_id, User.PASSENGER_PENDING);                                   
           }
          
           try {
@@ -210,15 +203,15 @@ public class Carpooler extends HttpServlet {
           // may be sent by either driver or passenger
           // cancels the pending transaction
 
-   //       int transaction_id = jsonRequest.optInt("transaction_id", 0);
           int transaction_id = 0;
           int other_user_id = jsonRequest.optInt("other_user_id", 0);
           if (other_user_id > 0) {
-            transaction_id = carpoolerEJB.findTransactionInfo(User.PASSENGER_PENDING, 
-                    user.isDriver() ? other_user_id : user.getUserID());
+            transaction_id = carpoolerEJB.findTransactionId(
+                    User.PASSENGER_PENDING, 
+                    user.isDriver() ? other_user_id : user.getUserID()
+            );
             carpoolerEJB.cancelPendingTransaction(transaction_id);
           }
-   
           if (transaction_id > 0) 
             carpoolerEJB.cancelPendingTransaction(transaction_id);
           
@@ -230,37 +223,52 @@ public class Carpooler extends HttpServlet {
           }         
           
         }
-        else if (function.equals("inprogress")) {
+        else if (function.equals("collected")) {
           
           // sent by passenger's phone
           // driver_id is read from NFC tag (or QR code)
+          
+          // lookup transaction_id
+          int transaction_id = carpoolerEJB.findTransactionId(
+                    User.PASSENGER_PENDING, 
+                    user_id
+            );          
 
-          int transaction_id = jsonRequest.optInt("transaction_id", 0);
-          long dt = new java.util.Date().getTime(); // unix timestamp
+ //         int driver_id = jsonRequest.optInt("driver_id", 0);
           double lat = jsonRequest.optDouble("lat", 0);
-          double lng = jsonRequest.optDouble("lng", 0);          
-          if (transaction_id > 0) {
-//            carpoolerEJB.updateStatus(user.getUserID(), User.PASSENGER_COLLECTED);          
-            carpoolerEJB.updateStatus(user_id, User.PASSENGER_COLLECTED);          
-            carpoolerEJB.setTransactionInProgress(transaction_id, dt, lat, lng);
-          }
+          double lng = jsonRequest.optDouble("lng", 0);   
+//          if (driver_id > 0) {          
+            carpoolerEJB.updateStatus(user_id, User.PASSENGER_COLLECTED);                  
+            if (transaction_id > 0) {
+              long dt = new java.util.Date().getTime(); // unix timestamp
+              carpoolerEJB.setTransactionInProgress(transaction_id, dt, lat, lng);
+            }
+//          }
           
         }
         else if (function.equals("completed")) {
           
           // sent by passenger's phone        
           // driver_id is read from NFC tag (or QR code)        
-          // optionally this can also be sent by the driver's phone if clicking the End button.
+          // (optionally this could also be sent by the driver's phone if clicking the End button?).
           
-          int transaction_id = jsonRequest.optInt("transaction_id", 0);          
-          long dt = new java.util.Date().getTime(); // unix timestamp
+          // lookup transaction_id
+          int transaction_id = carpoolerEJB.findTransactionId(
+                    User.PASSENGER_COLLECTED, 
+                    user_id
+            );                              
+          
+ //         int driver_id = jsonRequest.optInt("driver_id", 0);          
           double lat = jsonRequest.optDouble("lat", 0);
           double lng = jsonRequest.optDouble("lng", 0);                    
-          if (transaction_id > 0) {
-//            carpoolerEJB.updateStatus(user.getUserID(), User.PASSENGER_COMPLETED);          
-            carpoolerEJB.updateStatus(user_id, User.PASSENGER_COMPLETED);          
-            carpoolerEJB.setTransactionCompleted(transaction_id, dt, lat, lng);            
-          }
+//          if (driver_id > 0) {         
+            carpoolerEJB.updateStatus(user_id, User.PASSENGER_COMPLETED);   
+            
+            if (transaction_id > 0) {
+              long dt = new java.util.Date().getTime(); // unix timestamp
+              carpoolerEJB.setTransactionCompleted(transaction_id, dt, lat, lng);  
+            }
+//          }
           
         }
 
