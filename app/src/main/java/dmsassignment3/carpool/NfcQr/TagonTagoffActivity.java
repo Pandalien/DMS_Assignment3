@@ -145,7 +145,7 @@ public class TagonTagoffActivity extends AppCompatActivity{
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
-            case android.R.id.action_create_qr_code:
+            case R.id.action_create_qr_code:
                 Toast.makeText(this, "create_qr_code clicked", Toast.LENGTH_SHORT).show();
                 return true;
             default:
