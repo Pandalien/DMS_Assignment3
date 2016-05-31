@@ -6,8 +6,10 @@ import android.content.SharedPreferences.*;
 import android.nfc.*;
 import android.nfc.tech.*;
 import android.os.*;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.*;
 import android.location.Location;
+import android.util.Log;
 import android.view.*;
 import android.view.View.*;
 import android.widget.*;
@@ -20,12 +22,17 @@ import com.google.android.gms.common.api.GoogleApiClient.*;
 import com.google.android.gms.location.*;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import org.json.*;
 
 import java.net.*;
 import java.io.*;
 import java.util.*;
+
+import dmsassignment3.carpool.NfcQr.QRCodeDisplayActivity;
+import dmsassignment3.carpool.NfcQr.ToolbarCaptureActivity;
 
 /*
   LocationActivity handles user location updates and user session with the Carpool server.
@@ -197,6 +204,9 @@ public class LocationActivity extends AppCompatActivity implements
 
         //setup Nfc Listener
         setupNfcListener();
+
+        // QR menu
+        setupActionBar();
     } // onCreate
 
     @Override
@@ -238,6 +248,44 @@ public class LocationActivity extends AppCompatActivity implements
         super.onResume();
         enableNfcListener(true);
 //        if (googleApiClient.isConnected())
+    }
+
+
+    private void setupActionBar() {
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            // Show the Up button in the action bar.
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+
+        inflater.inflate(R.menu.actionbar_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+/*
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+*/
+            case R.id.action_create_qr_code:
+                Intent intent = new Intent(this, QRCodeDisplayActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void onScanQr(View view){
+        new IntentIntegrator(this).setCaptureActivity(ToolbarCaptureActivity.class).initiateScan();
     }
 
 
@@ -321,16 +369,8 @@ public class LocationActivity extends AppCompatActivity implements
 
             if (nfcMessage == null)
                 Toast.makeText(this, "Failed to read tag.", Toast.LENGTH_LONG).show();
-            else if (driver != null && user != null) {
-                if (driver.getUsername().equals(nfcMessage)) {
-                    if (user.getStatus() == User.PASSENGER_PENDING)
-                        transactionCollected(driver.getUserID(), user.getLat(), user.getLng());
-                    else if (user.getStatus() == User.PASSENGER_COLLECTED)
-                        transactionCompleted(driver.getUserID(), user.getLat(), user.getLng());
-                }
-                else
-                  Toast.makeText(this, "Driver does not match.", Toast.LENGTH_LONG).show();
-            }
+            else if (driver != null && user != null)
+                validateTagOnOff(nfcMessage);
 
             // -----
         } else if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
@@ -338,6 +378,16 @@ public class LocationActivity extends AppCompatActivity implements
         }
     } // onNewIntent
 
+    public void validateTagOnOff(String msg) {
+        if (driver.getUsername().equals(msg)) {
+            if (user.getStatus() == User.PASSENGER_PENDING)
+                transactionCollected(driver.getUserID(), user.getLat(), user.getLng());
+            else if (user.getStatus() == User.PASSENGER_COLLECTED)
+                transactionCompleted(driver.getUserID(), user.getLat(), user.getLng());
+        }
+        else
+            Toast.makeText(this, "Driver does not match.", Toast.LENGTH_LONG).show();
+    } // validateTagOnOff
 
 
 
@@ -751,6 +801,24 @@ public class LocationActivity extends AppCompatActivity implements
         } else if (reqCode == REQUEST_CODE_LOGIN_ACTIVITY && resCode == RESULT_CANCELED) {
             finish();
         }
+
+        IntentResult result = IntentIntegrator.parseActivityResult(reqCode, resCode, intent);
+        if(result != null) {
+            if(result.getContents() == null) {
+                Log.d("MainActivity", "Cancelled scan");
+                Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+            } else {
+                Log.d("MainActivity", "Scanned");
+                Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+                //createCarpoolRecord(result.getContents());
+
+                validateTagOnOff(result.getContents());
+            }
+        } else {
+            // This is important, otherwise the result will not be passed to the fragment
+            super.onActivityResult(reqCode, resCode, intent);
+        }
+
     } // onActivityResult
 
 

@@ -107,7 +107,7 @@
         android:layout_weight="0.5"
         android:id="@+id/liveControls"
         android:orientation="vertical"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <ListView
             android:id="@+id/userListView"
@@ -133,7 +133,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="0.5"
-        android:visibility="gone"
+        android:visibility="visible"
         android:id="@+id/passengerControls">
 
         <TextView
@@ -165,10 +165,11 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="QR Scan Code"
+            android:text="Scan QR Code"
             android:id="@+id/qrButton"
             android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true"
+            android:onClick="onScanQr"/>
 
     </RelativeLayout>
 
