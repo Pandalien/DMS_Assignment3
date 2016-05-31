@@ -16,8 +16,11 @@
         <link rel="stylesheet" href="resources/css/site.css"/>
         <title>My carpooling history</title>
     </head>
+    <%
+        models.User currentUser = (models.User) session.getAttribute("current_user");
+    %>
     <body>
-        <h1>My carpooling history</h1>
+        <h1>Carpooling history of <%=currentUser.getUsername()%></h1>
         <table>
             <tr>
                 <th>Transaction Id</th><th>Driver</th><th>Passenger</th><th>Tag on time</th><th>Tag off time</th>
@@ -25,7 +28,7 @@
             <%
                 List<models.Transaction> list = (List<models.Transaction>) request.getAttribute("history-list");
                 
-                models.User currentUser = (models.User) session.getAttribute("current_user");
+                
                 for (models.Transaction item : list) {%>
                 
                 <tr>

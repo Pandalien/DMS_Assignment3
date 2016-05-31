@@ -49,12 +49,13 @@
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait">
             <!-- Handle an NDEF record -->
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="application/aut.dms.carpooler" />
-            </intent-filter>
+
         </activity>
+        <receiver android:name=".NfcQr.NfcReceiver">
+
+
+
+        </receiver>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
