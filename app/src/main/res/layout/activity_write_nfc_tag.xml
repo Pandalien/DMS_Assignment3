@@ -41,7 +41,7 @@
         android:id="@+id/NfcBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="OK"
+        android:text="Scan"
         android:layout_centerVertical="true"
         android:layout_alignLeft="@+id/imageViewNfc"
         android:layout_alignStart="@+id/imageViewNfc" />

@@ -15,6 +15,13 @@
         android:text="Create my Qr code"
         android:onClick="onCreateQr" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear User"
+        android:id="@+id/logoutButton"
+        android:onClick="onLogoutClicked" />
+
     <ListView android:id="@android:id/list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />

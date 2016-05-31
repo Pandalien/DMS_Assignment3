@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -43,18 +44,21 @@ public class WriteNfcTag extends AppCompatActivity implements View.OnClickListen
         setContentView(R.layout.activity_write_nfc_tag);
         setupActionBar();
 
-        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-
         writeButton = (Button)findViewById(R.id.NfcBtn);
         writeButton.setOnClickListener(this);
-
-        tvNfc = (TextView) findViewById(R.id.tvNfcName);
-        statusView = (TextView)findViewById(R.id.textView1);
         writeModeEnabled = false;
-
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         name = prefs.getString("username", "");
         pass = prefs.getString("userpass", "");
+        tvNfc = (TextView) findViewById(R.id.tvNfcName);
+        statusView = (TextView)findViewById(R.id.textView1);
+
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if(nfcAdapter == null){
+            Toast.makeText(this, "NFC is not available, you can create your QR code instead.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
         tvNfc.setText(name);
     }

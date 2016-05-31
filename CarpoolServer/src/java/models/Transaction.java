@@ -41,7 +41,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Transaction.findByCompletedLng", query = "SELECT t FROM Transaction t WHERE t.completedLng = :completedLng"),
     @NamedQuery(name = "Transaction.findByPendingDt", query = "SELECT t FROM Transaction t WHERE t.pendingDt = :pendingDt"),
     @NamedQuery(name = "Transaction.findByPassengerId", query = "SELECT t FROM Transaction t WHERE t.passengerId = :passengerId"),
-    @NamedQuery(name = "Transaction.findByDriverId", query = "SELECT t FROM Transaction t WHERE t.driverId = :driverId")
+    @NamedQuery(name = "Transaction.findByDriverId", query = "SELECT t FROM Transaction t WHERE t.driverId = :driverId"),
+    @NamedQuery(name = "Transaction.findByUserId", query = "SELECT t FROM Transaction t WHERE t.driverId = :userId OR t.passengerId = :userId")
 })
 public class Transaction implements Serializable {
 

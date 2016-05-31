@@ -8,70 +8,77 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="dmsassignment3.carpool.MainActivity">
-
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageViewNfc"
+        android:src="@drawable/carpool"
+        android:layout_marginTop="35dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="What are you today?"
-        android:id="@+id/textView" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="I am a Driver"
-        android:id="@+id/driverbutton"
-        android:onClick="driverButtonClicked"
+        android:id="@+id/textView"
+        android:layout_below="@+id/imageViewNfc"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="29dp" />
+    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:stretchColumns="*"
+        android:layout_marginTop="56dp"
         android:layout_below="@+id/textView"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+        <TableRow android:layout_width="0dp">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="I am a Driver"
+                android:id="@+id/driverbutton"
+                android:onClick="driverButtonClicked"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="I am a Passenger"
-        android:id="@+id/passengerbutton"
-        android:onClick="passengerButtonClicked"
-        android:layout_gravity="center"
-        android:layout_below="@+id/driverbutton"
-        android:layout_centerHorizontal="true" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="I am a Passenger"
+                android:id="@+id/passengerbutton"
+                android:onClick="passengerButtonClicked"/>
+        </TableRow>
+        <TableRow android:layout_width="0dp">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tag On/Off"
+                android:id="@+id/endButton"
+                android:onClick="onLogging"
+                android:layout_below="@+id/logoutButton"
+                android:layout_alignLeft="@+id/logoutButton"
+                android:layout_alignStart="@+id/logoutButton" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Tag On/Off"
-        android:id="@+id/endButton"
-        android:onClick="onLogging"
-        android:layout_below="@+id/logoutButton"
-        android:layout_alignLeft="@+id/logoutButton"
-        android:layout_alignStart="@+id/logoutButton" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Settings"
-        android:onClick="onSettingsClicked"
-        android:icon="@android:drawable/ic_menu_preferences"
-        android:id="@+id/button2"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Clear User"
-        android:id="@+id/logoutButton"
-        android:onClick="onLogoutClicked"
-        android:layout_below="@+id/passengerbutton"
-        android:layout_centerHorizontal="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="History"
-        android:onClick="onHistoryClicked"
-        android:id="@+id/button"
-        android:layout_below="@+id/endButton"
-        android:layout_centerHorizontal="true" />
-
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Settings"
+                android:onClick="onSettingsClicked"
+                android:icon="@android:drawable/ic_menu_preferences"
+                android:id="@+id/button2"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+        </TableRow>
+        <TableRow android:layout_width="0dp">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="History"
+                android:onClick="onHistoryClicked"
+                android:id="@+id/button"
+                android:layout_below="@+id/endButton"
+                android:layout_centerHorizontal="true" />
+        </TableRow>
+    </TableLayout>
 </RelativeLayout>

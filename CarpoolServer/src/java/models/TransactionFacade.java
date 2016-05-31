@@ -40,4 +40,10 @@ public class TransactionFacade extends AbstractFacade<Transaction> {
         q.setParameter("driverId", id);
         return q.getResultList();
     }
+    
+    public List<Transaction> findByUserId(Object id){
+        Query q = em.createNamedQuery("Transaction.findByUserId");
+        q.setParameter("userId", id);
+        return q.getResultList();
+    }
 }

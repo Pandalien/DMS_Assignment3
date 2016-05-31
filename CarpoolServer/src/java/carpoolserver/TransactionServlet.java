@@ -54,7 +54,7 @@ public class TransactionServlet extends HttpServlet {
         
         request.getSession().setAttribute(CurrentUserAttributeName, user);
         
-        List<models.Transaction> ts = ejbFacadeTrans.findByDriverId(user);
+        List<models.Transaction> ts = ejbFacadeTrans.findByUserId(user);
         
         if (ts.size() < 1) {
             sendMessage(request, response, "No records are available.");

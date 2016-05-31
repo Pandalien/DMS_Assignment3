@@ -293,4 +293,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         Intent intent = new Intent(this, QRCodeDisplayActivity.class);
         startActivity(intent);
     }
+
+    public void onLogoutClicked(View view) {
+        // delete cached user info file
+        deleteFile(LocationActivity.USERFILENAME);
+    }
 }

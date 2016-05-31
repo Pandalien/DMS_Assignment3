@@ -40,7 +40,7 @@
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".NfcQr.QRCodeDisplayActivity"
-            android:parentActivityName=".NfcQr.TagonTagoffActivity"
+            android:parentActivityName=".SettingsActivity"
             android:screenOrientation="portrait">
         </activity>
 
@@ -51,11 +51,6 @@
             <!-- Handle an NDEF record -->
 
         </activity>
-        <receiver android:name=".NfcQr.NfcReceiver">
-
-
-
-        </receiver>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"

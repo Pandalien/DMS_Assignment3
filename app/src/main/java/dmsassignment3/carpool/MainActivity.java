@@ -72,11 +72,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void onLogoutClicked(View view) {
-        // delete cached user info file
-        deleteFile(LocationActivity.USERFILENAME);
-    }
-
     public void onHistoryClicked(View view) {
         Intent intent = new Intent(this, HistoryActivity.class);
         startActivity(intent);
