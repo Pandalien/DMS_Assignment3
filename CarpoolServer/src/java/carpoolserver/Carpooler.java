@@ -151,7 +151,6 @@ public class Carpooler extends HttpServlet {
         
         if (function.equals("logout")) {
 
-//          carpoolerEJB.updateStatus(user.getUserID(), User.OFFLINE);
           carpoolerEJB.updateStatus(user_id, User.OFFLINE);
           session.invalidate();
           
@@ -163,7 +162,7 @@ public class Carpooler extends HttpServlet {
 //          carpoolerEJB.updateLocation(user.getUserID(), lat, lng);
           carpoolerEJB.updateLocation(user_id, lat, lng);
           
-          // update response tailered for passenger or driver
+          // update response tailored for passenger or driver
           // IN ADDITION:
           // PASSENGER must receive the DRIVER_USERNAME for a pending lift -
           // This is the information that must match the NFC or QRcode on the

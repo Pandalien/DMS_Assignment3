@@ -192,8 +192,8 @@ public class LocationActivity extends AppCompatActivity implements
 
 
         // must be called last, at the end of the constructor
-        updateControls();
         copyUserpassToSharedPrefs();
+        updateControls();
 
         //setup Nfc Listener
         setupNfcListener();
@@ -504,6 +504,11 @@ public class LocationActivity extends AppCompatActivity implements
                 proximityLabelStart.setText(R.string.proximity_label_for_passenger_start);
                 proximityLabelEnd.setText(R.string.proximity_label_for_passenger_end);
             }
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            String username = prefs.getString("username", null);
+            if (username != null)
+              title = title + " - " + username;
         }
         else if (driver == null && user != null) {
             // driver/passenger live controls
@@ -532,7 +537,7 @@ public class LocationActivity extends AppCompatActivity implements
 
             driverUsernameTextView.setText(driver.getUsername());
 
-            title = title + " - " + user.getUsername();
+            title = title + " - " + user.getUsername() + " is a passenger.";
         }
 
 

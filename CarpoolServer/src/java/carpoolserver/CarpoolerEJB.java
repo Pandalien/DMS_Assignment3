@@ -283,28 +283,7 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
     try {
       PreparedStatement preparedStatement = null;
       String query = "";
-      if (forUser.getStatus() == User.DRIVER) {
-/*        
-        // passengers requesting a lift:        
-        query = "select *"
-              + " from " + dbName + "." + userTableName 
-              + " where user_id != ?"
-              + " and status = ?;";
-        preparedStatement = connection.prepareStatement(query);
-        preparedStatement.setInt(1, forUser.getUserID());
-        preparedStatement.setInt(2, User.PASSENGER);                           
-*/                
-/*        
-        // passengers in an active transaction with this driver:      
-        query = "select passenger_id"
-              + " from " + dbName + "." + transactionTableName 
-              + " where (status = ? or status = ?)"
-              + " and driver_id = ?";
-        preparedStatement = connection.prepareStatement(query);
-        preparedStatement.setInt(1, User.PASSENGER_PENDING);        
-        preparedStatement.setInt(2, User.PASSENGER_COLLECTED);  
-        preparedStatement.setInt(3, forUser.getUserID());        
-*/  
+      if (forUser.getStatus() == User.DRIVER) { 
         // passengers requesting a lift:        
         query = "select *"
               + " from " + dbName + "." + userTableName 
@@ -346,7 +325,12 @@ public class CarpoolerEJB implements CarpoolerEJBInterface {
     JSONObject jsonUserList = new JSONObject();
     for (User user: userlist) {
       try {
-        jsonUserList.put(user.getUsername(), user.toJSONObject());
+        // last minute filtering:
+        // remove any offline users which may have been returned by the 
+        // transaction table subquery above (or could do some fancy SQL join
+        // with the users table...).
+        if (user.getStatus() > User.OFFLINE)
+          jsonUserList.put(user.getUsername(), user.toJSONObject());
       }
       catch (Exception e) {
         System.err.println(e.getMessage());
