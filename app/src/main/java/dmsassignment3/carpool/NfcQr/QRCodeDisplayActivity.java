@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -29,10 +30,10 @@ public class QRCodeDisplayActivity extends AppCompatActivity {
         ImageView imageView = (ImageView) findViewById(R.id.qrCode);
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String qrData = prefs.getString("username", "N/A");
+        String user = prefs.getString("username", "N/A");
         int qrCodeDimention = 500;
 
-        QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrData, null,
+        QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(user, null,
                 Contents.Type.TEXT, BarcodeFormat.QR_CODE.toString(), qrCodeDimention);
 
         try {
@@ -41,6 +42,10 @@ public class QRCodeDisplayActivity extends AppCompatActivity {
         } catch (WriterException e) {
             e.printStackTrace();
         }
+
+        TextView tvPassenger;
+        tvPassenger = (TextView) findViewById(R.id.tvNfcTagName);
+        tvPassenger.setText(user);
     }
 
     private void setupActionBar() {

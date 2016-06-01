@@ -4,6 +4,7 @@
     Author     : Andy Chen
 --%>
 
+<%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Objects"%>
 <%@page import="models.Transaction"%>
 <%@page import="models.User"%>
@@ -18,12 +19,13 @@
     </head>
     <%
         models.User currentUser = (models.User) session.getAttribute("current_user");
+        SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd hh:mm");
     %>
     <body>
-        <h1>Carpooling history of <%=currentUser.getUsername()%></h1>
+        <h3 style="text-align: center">Carpooling history of <%=currentUser.getUsername()%></h3>
         <table>
             <tr>
-                <th>Transaction Id</th><th>Driver</th><th>Passenger</th><th>Tag on time</th><th>Tag off time</th>
+                <th>ID</th><th>Driver</th><th>Passenger</th><th>Tag on</th><th>Tag off</th>
             </tr>
             <%
                 List<models.Transaction> list = (List<models.Transaction>) request.getAttribute("history-list");
@@ -35,8 +37,8 @@
                     <td><%= item.getTransactionId()%></td>
                     <td><%= item.getDriverId().getUsername()%></td>
                     <td><%= item.getPassengerId().getUsername()%></td>
-                    <td><%= item.getCollectedDt()%></td>
-                    <td><%= item.getCompletedDt()%></td>
+                    <td><%= item.getCollectedDt()!=null? dt.format(item.getCollectedDt()) : "-"%></td>
+                    <td><%= item.getCompletedDt()!=null? dt.format(item.getCompletedDt()) : "-"%></td>
                 </tr>
             <%}%>
         </table>
