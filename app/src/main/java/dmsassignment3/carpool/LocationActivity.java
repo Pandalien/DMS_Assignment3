@@ -529,7 +529,7 @@ public class LocationActivity extends AppCompatActivity implements
         }
         // Driver clicked End
         else if (passenger.getStatus() == User.PASSENGER_COLLECTED)
-            transactionCompleted(passenger.getUserID(), youMarker.getPosition().latitude, youMarker.getPosition().longitude);
+            transactionEnded(passenger.getUserID(), youMarker.getPosition().latitude, youMarker.getPosition().longitude);
         userList.add(position, passenger);
         userListAdapter.notifyDataSetChanged();
     } // onActionButtonClick
@@ -1192,6 +1192,48 @@ public class LocationActivity extends AppCompatActivity implements
         }
 
     } // TransactionCompleted
+
+
+    // ------ HTTP command: Completed ------
+    // Sent by driver's phone.
+    // When driver clicks End button
+
+
+    protected void transactionEnded(int passenger_id, double lat, double lng) {
+        JSONObject cmd = new JSONObject();
+        try {
+            cmd.put("function", "completed");
+            cmd.put("passenger_id", passenger_id);
+            cmd.put("lat", lat);
+            cmd.put("lng", lng);
+            executeComm(cmd, new TransactionEnded());
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    } // transactionCompleted
+
+
+    private class TransactionEnded extends HttpJsonCommunicator {
+
+        protected void ok(JSONObject response) {
+            if (response.has("userlist"))
+                try {
+                    updateUserList(response.getJSONObject("userlist"));
+                }
+                catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+            updateControls();
+        }
+
+        protected void error(String result, JSONObject response) {
+            if (result != null && result.length() > 0)
+                Toast.makeText(activity, result, Toast.LENGTH_LONG).show();
+        }
+
+    } // TransactionCompleted
+
 
 
 /*

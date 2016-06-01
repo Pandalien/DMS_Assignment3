@@ -3,7 +3,7 @@
  */
 package carpoolserver;
 
-import java.io.*;
+import java.io.*; 
 import javax.ejb.*;
 import javax.naming.*;
 import javax.servlet.*;
@@ -255,26 +255,28 @@ public class Carpooler extends HttpServlet {
         }
         else if (function.equals("completed")) {
           
-          // sent by passenger's phone        
-          // driver_id is read from NFC tag (or QR code)        
-          // (optionally this could also be sent by the driver's phone if clicking the End button?).
+          // sent by passenger's phone               
+          // if "passenger_id" is sent, this was sent by the driver's phone by clicking the End button
+          int passenger_id = jsonRequest.optInt("passenger_id", 0);
+          double lat = jsonRequest.optDouble("lat", 0);
+          double lng = jsonRequest.optDouble("lng", 0);            
+          
+          int passenger_completed_id = passenger_id > 0 ? passenger_id : user_id;
+                    
+          
+          carpoolerEJB.updateStatus(passenger_completed_id, User.PASSENGER_COMPLETED);          
           
           // lookup transaction_id
           int transaction_id = carpoolerEJB.findTransactionId(
                     User.PASSENGER_COLLECTED, 
-                    user_id
+                    passenger_completed_id
             );                              
-          
- //         int driver_id = jsonRequest.optInt("driver_id", 0);          
-          double lat = jsonRequest.optDouble("lat", 0);
-          double lng = jsonRequest.optDouble("lng", 0);                    
-//          if (driver_id > 0) {         
-            carpoolerEJB.updateStatus(user_id, User.PASSENGER_COMPLETED);   
-            if (transaction_id > 0) {
-              long dt = new java.util.Date().getTime(); // unix timestamp
-              carpoolerEJB.setTransactionCompleted(transaction_id, dt, lat, lng);  
-            }
-//          }
+                          
+          if (transaction_id > 0) {
+            long dt = new java.util.Date().getTime(); // unix timestamp
+            carpoolerEJB.setTransactionCompleted(transaction_id, dt, lat, lng);  
+          }
+
           
         }
 

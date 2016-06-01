@@ -58,7 +58,7 @@
     <string name="pref_header_map">Map Settings</string>
 
     <string name="pref_map_title_refresh">Refresh interval (milliseconds)</string>
-    <string name="pref_map_default_refresh">4000</string>
+    <string name="pref_map_default_refresh">1000</string>
 
 
     <!-- Private user cache filename -->

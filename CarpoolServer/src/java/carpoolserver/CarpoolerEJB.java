@@ -18,7 +18,8 @@ import org.json.*;
 @Stateless
 public class CarpoolerEJB implements CarpoolerEJBInterface {
   
-  private final String config_file = "config-local.xml"; // "config-online.xml"
+  private final String config_file = "config-local.xml"; 
+//  private final String config_file = "config-online.xml";   
 
   protected Connection connection;  
   protected String dbName;

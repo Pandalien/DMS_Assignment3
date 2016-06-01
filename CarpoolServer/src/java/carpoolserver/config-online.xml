@@ -10,7 +10,7 @@ Carpool Server, DMS Assignment 3
 
   <entry key="dbDriver">com.mysql.jdbc.Driver</entry>
   <entry key="dbURL">jdbc:mysql://raptor2.aut.ac.nz:3306/</entry>  
-  <entry key="dbName">student</entry>
+  <entry key="dbName">dmsstudent</entry>
   <entry key="dbUser">student</entry>
   <entry key="dbPassword">fpn871</entry>
   

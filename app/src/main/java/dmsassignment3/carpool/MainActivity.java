@@ -61,12 +61,12 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("usertype", User.PASSENGER);
         startActivity(intent);
     }
-
+/*
     public void onLogging(View view) {
         Intent intent = new Intent(this, TagonTagoffActivity.class);
         startActivity(intent);
     }
-
+*/
     public void onSettingsClicked(View view) {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
